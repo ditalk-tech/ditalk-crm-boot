@@ -1,25 +1,26 @@
 package org.dromara.module.goods.controller;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.annotation.Validated;
-import org.dromara.common.idempotent.annotation.RepeatSubmit;
-import org.dromara.common.log.annotation.Log;
-import org.dromara.common.web.core.BaseController;
-import org.dromara.common.mybatis.core.page.PageQuery;
+import cn.hutool.core.lang.tree.Tree;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
-import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.module.goods.domain.vo.GoodsCategoryVo;
+import org.dromara.common.idempotent.annotation.RepeatSubmit;
+import org.dromara.common.log.annotation.Log;
+import org.dromara.common.log.enums.BusinessType;
+import org.dromara.common.web.core.BaseController;
 import org.dromara.module.goods.domain.bo.GoodsCategoryBo;
+import org.dromara.module.goods.domain.vo.GoodsCategoryVo;
 import org.dromara.module.goods.service.IGoodsCategoryService;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 商品分类
@@ -101,5 +102,14 @@ public class GoodsCategoryController extends BaseController {
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
         return toAjax(goodsCategoryService.deleteWithValidByIds(List.of(ids), true));
+    }
+
+    /**
+     * 获取树列表
+     */
+    @SaCheckPermission("goods:category:list")
+    @GetMapping("/getTree")
+    public R<List<Tree<Long>>> getCategoryTree(GoodsCategoryBo bo) {
+        return R.ok(goodsCategoryService.queryTreeList(bo));
     }
 }

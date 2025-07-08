@@ -1,5 +1,6 @@
 package org.dromara.module.goods.service;
 
+import cn.hutool.core.lang.tree.Tree;
 import org.dromara.common.mybatis.core.page.IdPageQuery;
 import org.dromara.module.goods.domain.vo.GoodsCategoryVo;
 import org.dromara.module.goods.domain.bo.GoodsCategoryBo;
@@ -72,4 +73,6 @@ public interface IGoodsCategoryService {
      * @return 商品分类列表
      */
     List<GoodsCategoryVo> queryList(GoodsCategoryBo bo, IdPageQuery pageQuery);
+
+    List<Tree<Long>> queryTreeList(GoodsCategoryBo bo);
 }
