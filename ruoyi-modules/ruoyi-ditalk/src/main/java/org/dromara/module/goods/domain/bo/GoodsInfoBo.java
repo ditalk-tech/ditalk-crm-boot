@@ -1,0 +1,131 @@
+package org.dromara.module.goods.domain.bo;
+
+import org.dromara.module.goods.domain.GoodsInfo;
+import org.dromara.common.mybatis.core.domain.BaseEntity;
+import org.dromara.common.core.validate.AddGroup;
+import org.dromara.common.core.validate.EditGroup;
+import io.github.linpeilie.annotations.AutoMapper;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import jakarta.validation.constraints.*;
+
+/**
+ * 商品信息业务对象 goods_info
+ *
+ * @author weidixian
+ * @date 2025-07-08
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@AutoMapper(target = GoodsInfo.class, reverseConvertGenerate = false)
+public class GoodsInfoBo extends BaseEntity {
+
+    /**
+     * ID
+     */
+    @NotNull(message = "ID不能为空", groups = { EditGroup.class })
+    private Long id;
+
+    /**
+     * 乐观锁
+     */
+    @NotNull(message = "乐观锁不能为空", groups = { EditGroup.class })
+    private Long version;
+
+    /**
+     * 店铺ID
+     */
+    @NotNull(message = "店铺ID不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Long shopId;
+
+    /**
+     * 分类ID
+     */
+    @NotNull(message = "分类ID不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Long categoryId;
+
+    /**
+     * 编码
+     */
+    private String spuCode;
+
+    /**
+     * 名称
+     */
+    @NotBlank(message = "名称不能为空", groups = { AddGroup.class, EditGroup.class })
+    private String name;
+
+    /**
+     * 副标题
+     */
+    private String subtitle;
+
+    /**
+     * 主图ID
+     */
+    @NotNull(message = "主图ID不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Long mainPic;
+
+    /**
+     * 轮播图ID组
+     */
+    private String subPics;
+
+    /**
+     * 条形码
+     */
+    private String barCode;
+
+    /**
+     * 品牌ID
+     */
+    private Long brandId;
+
+    /**
+     * 商品说明
+     */
+    private String content;
+
+    /**
+     * 最低价
+     */
+    @NotNull(message = "最低价不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Long minPrice;
+
+    /**
+     * 总销量
+     */
+    @NotNull(message = "总销量不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Long totalSales;
+
+    /**
+     * 可用库存
+     */
+    @NotNull(message = "可用库存不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Long availableStock;
+
+    /**
+     * 综合评分
+     */
+    @NotNull(message = "综合评分不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Long overallScore;
+
+    /**
+     * 排序
+     */
+    @NotNull(message = "排序不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Long sortOrder;
+
+    /**
+     * 属性JSON
+     */
+    private String attrJson;
+
+    /**
+     * 状态
+     */
+    @NotBlank(message = "状态不能为空", groups = { AddGroup.class, EditGroup.class })
+    private String state;
+
+
+}
