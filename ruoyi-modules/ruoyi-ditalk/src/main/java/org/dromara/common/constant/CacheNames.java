@@ -36,4 +36,5 @@ public interface CacheNames {
     String MemberPhoto = PREFIX + "MemberPhoto#7d";
     String ShopInfo = PREFIX + "ShopInfo#7d";
     String GoodsInfo = PREFIX + "GoodsInfo#7d";
+    String GoodsCategory = PREFIX + "GoodsCategory#7d";
 }
