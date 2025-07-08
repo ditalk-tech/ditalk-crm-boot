@@ -34,4 +34,5 @@ public interface CacheNames {
     String EventMoment = PREFIX + "EventMoment#7d";
     String EventMoment_EventId = PREFIX + "EventMoment_EventId#7d";
     String MemberPhoto = PREFIX + "MemberPhoto#7d";
+    String ShopInfo = PREFIX + "ShopInfo#7d";
 }
