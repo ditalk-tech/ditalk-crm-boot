@@ -39,4 +39,5 @@ public interface CacheNames {
     String GoodsCategory = PREFIX + "GoodsCategory#7d";
     String GoodsBrand = PREFIX + "GoodsBrand#7d";
     String GoodsSkuSpec = PREFIX + "GoodsSkuSpec#7d";
+    String GoodsSku = PREFIX + "GoodsSku#7d";
 }
