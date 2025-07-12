@@ -155,11 +155,16 @@ public class GoodsInfoVo implements Serializable {
     private String attrJson;
 
     /**
+     * 规格JSON
+     */
+    @ExcelProperty(value = "规格JSON")
+    private String specJson;
+
+    /**
      * 状态
      */
     @ExcelProperty(value = "状态", converter = ExcelDictConvert.class)
     @ExcelDictFormat(dictType = "ditalk_goods_state")
     private String state;
-
 
 }

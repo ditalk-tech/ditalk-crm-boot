@@ -120,9 +120,13 @@ public class GoodsInfo extends TenantEntity {
     private String attrJson;
 
     /**
+     * 规格JSON
+     */
+    private String specJson;
+
+    /**
      * 状态
      */
     private String state;
-
 
 }

@@ -122,10 +122,14 @@ public class GoodsInfoBo extends BaseEntity {
     private String attrJson;
 
     /**
+     * 规格JSON
+     */
+    private String specJson;
+
+    /**
      * 状态
      */
     @NotBlank(message = "状态不能为空", groups = { AddGroup.class, EditGroup.class })
     private String state;
-
 
 }
