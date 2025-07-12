@@ -1,5 +1,7 @@
 package org.dromara.module.goods.service;
 
+import org.dromara.module.goods.domain.vo.GoodsInfoMiniVo;
+import org.dromara.module.goods.domain.vo.GoodsInfoOptionVo;
 import org.dromara.module.goods.domain.vo.GoodsInfoVo;
 import org.dromara.module.goods.domain.bo.GoodsInfoBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -82,4 +84,8 @@ public interface IGoodsInfoService {
      * @return 商品信息列表
      */
     List<GoodsInfoVo> queryList(GoodsInfoBo bo, IdPageQuery pageQuery);
+
+    TableDataInfo<GoodsInfoMiniVo> queryMiniPageList(GoodsInfoBo bo, PageQuery pageQuery);
+
+    TableDataInfo<GoodsInfoOptionVo> queryOptionPageList(GoodsInfoBo bo, PageQuery pageQuery);
 }

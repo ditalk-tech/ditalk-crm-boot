@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.module.goods.domain.vo.GoodsInfoMiniVo;
+import org.dromara.module.goods.domain.vo.GoodsInfoOptionVo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -35,6 +37,24 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class GoodsInfoController extends BaseController {
 
     private final IGoodsInfoService goodsInfoService;
+
+    /**
+     * 查询商品mini信息列表
+     */
+    @SaCheckPermission("goods:info:list")
+    @GetMapping("/list/mini")
+    public TableDataInfo<GoodsInfoMiniVo> listMini(GoodsInfoBo bo, PageQuery pageQuery) {
+        return goodsInfoService.queryMiniPageList(bo, pageQuery);
+    }
+
+    /**
+     * 查询商品option信息列表
+     */
+    @SaCheckPermission("goods:info:list")
+    @GetMapping("/list/option")
+    public TableDataInfo<GoodsInfoOptionVo> listOption(GoodsInfoBo bo, PageQuery pageQuery) {
+        return goodsInfoService.queryOptionPageList(bo, pageQuery);
+    }
 
     /**
      * 查询商品信息列表

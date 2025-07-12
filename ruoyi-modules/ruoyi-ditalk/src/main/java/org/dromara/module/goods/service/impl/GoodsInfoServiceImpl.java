@@ -15,9 +15,13 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.module.goods.domain.GoodsInfo;
 import org.dromara.module.goods.domain.bo.GoodsInfoBo;
+import org.dromara.module.goods.domain.vo.GoodsInfoMiniVo;
+import org.dromara.module.goods.domain.vo.GoodsInfoOptionVo;
 import org.dromara.module.goods.domain.vo.GoodsInfoVo;
-import org.dromara.module.goods.service.IGoodsInfoService;
 import org.dromara.module.goods.mapper.GoodsInfoMapper;
+import org.dromara.module.goods.mapper.GoodsInfoMiniMapper;
+import org.dromara.module.goods.mapper.GoodsInfoOptionMapper;
+import org.dromara.module.goods.service.IGoodsInfoService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -38,6 +42,8 @@ import java.util.Map;
 public class GoodsInfoServiceImpl implements IGoodsInfoService {
 
     private final GoodsInfoMapper baseMapper;
+    private final GoodsInfoMiniMapper baseMiniMapper;
+    private final GoodsInfoOptionMapper baseOptionMapper;
 
     /**
      * 查询商品信息
@@ -180,6 +186,20 @@ public class GoodsInfoServiceImpl implements IGoodsInfoService {
         LambdaQueryWrapper<GoodsInfo> lqw = buildWrapper(bo);
         lqw.lt(pageQuery.getId() != null, GoodsInfo::getId, pageQuery.getId());
         return baseMapper.selectVoList(pageQuery.build(lqw));
+    }
+
+    @Override
+    public TableDataInfo<GoodsInfoMiniVo> queryMiniPageList(GoodsInfoBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<GoodsInfo> lqw = buildQueryWrapper(bo);
+        Page<GoodsInfoMiniVo> result = baseMiniMapper.selectVoPage(pageQuery.build(), lqw);
+        return TableDataInfo.build(result);
+    }
+
+    @Override
+    public TableDataInfo<GoodsInfoOptionVo> queryOptionPageList(GoodsInfoBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<GoodsInfo> lqw = buildQueryWrapper(bo);
+        Page<GoodsInfoOptionVo> result = baseOptionMapper.selectVoPage(pageQuery.build(), lqw);
+        return TableDataInfo.build(result);
     }
 
 }
