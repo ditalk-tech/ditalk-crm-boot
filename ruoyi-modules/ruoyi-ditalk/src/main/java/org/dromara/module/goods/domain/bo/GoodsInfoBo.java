@@ -89,31 +89,31 @@ public class GoodsInfoBo extends BaseEntity {
     /**
      * 最低价
      */
-    @NotNull(message = "最低价不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "最低价不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long minPrice;
 
     /**
      * 总销量
      */
-    @NotNull(message = "总销量不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "总销量不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long totalSales;
 
     /**
      * 可用库存
      */
-    @NotNull(message = "可用库存不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "可用库存不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long availableStock;
 
     /**
      * 综合评分
      */
-    @NotNull(message = "综合评分不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "综合评分不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long overallScore;
 
     /**
      * 排序
      */
-    @NotNull(message = "排序不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "排序不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long sortOrder;
 
     /**

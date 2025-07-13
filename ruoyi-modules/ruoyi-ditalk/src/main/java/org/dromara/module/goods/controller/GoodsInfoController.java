@@ -2,10 +2,12 @@ package org.dromara.module.goods.controller;
 
 import java.util.List;
 
+import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.module.goods.domain.bo.GoodsInfoContentBo;
 import org.dromara.module.goods.domain.vo.GoodsInfoMiniVo;
 import org.dromara.module.goods.domain.vo.GoodsInfoOptionVo;
 import org.springframework.web.bind.annotation.*;
@@ -97,8 +99,13 @@ public class GoodsInfoController extends BaseController {
     @Log(title = "商品信息", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
-    public R<Void> add(@Validated(AddGroup.class) @RequestBody GoodsInfoBo bo) {
-        return toAjax(goodsInfoService.insertByBo(bo));
+    public R<GoodsInfoVo> add(@Validated(AddGroup.class) @RequestBody GoodsInfoBo bo) {
+        Boolean flag = goodsInfoService.insertByBo(bo);
+        if (!flag) {
+            return R.fail();
+        }
+        GoodsInfoVo goodsInfoVo = goodsInfoService.queryById(bo.getId());
+        return R.ok(goodsInfoVo);
     }
 
     /**
@@ -108,8 +115,13 @@ public class GoodsInfoController extends BaseController {
     @Log(title = "商品信息", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
-    public R<Void> edit(@Validated(EditGroup.class) @RequestBody GoodsInfoBo bo) {
-        return toAjax(goodsInfoService.updateByBo(bo));
+    public R<GoodsInfoVo> edit(@Validated(EditGroup.class) @RequestBody GoodsInfoBo bo) {
+        Boolean flag = goodsInfoService.updateByBo(bo);
+        if (!flag) {
+            return R.fail();
+        }
+        GoodsInfoVo goodsInfoVo = goodsInfoService.queryById(bo.getId());
+        return R.ok(goodsInfoVo);
     }
 
     /**
@@ -123,5 +135,22 @@ public class GoodsInfoController extends BaseController {
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
         return toAjax(goodsInfoService.deleteWithValidByIds(List.of(ids), true));
+    }
+
+    /**
+     * 修改商品信息Content
+     */
+    @SaCheckPermission("goods:info:edit")
+    @Log(title = "商品信息", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PutMapping("/content")
+    public R<GoodsInfoVo> editContent(@Validated(EditGroup.class) @RequestBody GoodsInfoContentBo bo) {
+        GoodsInfoBo goodsInfoBo = BeanUtil.copyProperties(bo, GoodsInfoBo.class);
+        Boolean flag = goodsInfoService.updateByBo(goodsInfoBo);
+        if (!flag) {
+            return R.fail();
+        }
+        GoodsInfoVo goodsInfoVo = goodsInfoService.queryById(goodsInfoBo.getId());
+        return R.ok(goodsInfoVo);
     }
 }
