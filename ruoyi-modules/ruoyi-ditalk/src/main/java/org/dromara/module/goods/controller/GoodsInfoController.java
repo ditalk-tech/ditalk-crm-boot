@@ -62,6 +62,8 @@ public class GoodsInfoController extends BaseController {
     @SaCheckPermission("goods:info:list")
     @GetMapping("/list")
     public TableDataInfo<GoodsInfoVo> list(GoodsInfoBo bo, PageQuery pageQuery) {
+        TableDataInfo<GoodsInfoVo> tableDataInfo = goodsInfoService.queryPageList(bo, pageQuery);
+        tableDataInfo.getRows().forEach(r -> r.setContent(null)); // 默认不返回content字段，减少网络传输量
         return goodsInfoService.queryPageList(bo, pageQuery);
     }
 

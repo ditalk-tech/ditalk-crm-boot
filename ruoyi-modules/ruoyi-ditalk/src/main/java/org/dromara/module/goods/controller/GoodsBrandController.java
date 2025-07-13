@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.module.goods.domain.vo.GoodsBrandOptionVo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -43,6 +44,15 @@ public class GoodsBrandController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo<GoodsBrandVo> list(GoodsBrandBo bo, PageQuery pageQuery) {
         return goodsBrandService.queryPageList(bo, pageQuery);
+    }
+
+    /**
+     * 查询商品品牌信息Option列表
+     */
+    @SaCheckPermission("goods:brand:list")
+    @GetMapping("/list/option")
+    public TableDataInfo<GoodsBrandOptionVo> listOption(GoodsBrandBo bo, PageQuery pageQuery) {
+        return goodsBrandService.queryPageOptionList(bo, pageQuery);
     }
 
     /**

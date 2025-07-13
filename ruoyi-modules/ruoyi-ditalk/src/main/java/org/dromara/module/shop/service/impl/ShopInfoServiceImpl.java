@@ -15,8 +15,10 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.module.shop.domain.ShopInfo;
 import org.dromara.module.shop.domain.bo.ShopInfoBo;
+import org.dromara.module.shop.domain.vo.ShopInfoOptionVo;
 import org.dromara.module.shop.domain.vo.ShopInfoVo;
 import org.dromara.module.shop.mapper.ShopInfoMapper;
+import org.dromara.module.shop.mapper.ShopInfoOptionMapper;
 import org.dromara.module.shop.service.IShopInfoService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -38,6 +40,7 @@ import java.util.Map;
 public class ShopInfoServiceImpl implements IShopInfoService {
 
     private final ShopInfoMapper baseMapper;
+    private final ShopInfoOptionMapper baseOptionMapper;
 
     /**
      * 查询店铺信息
@@ -177,6 +180,13 @@ public class ShopInfoServiceImpl implements IShopInfoService {
         LambdaQueryWrapper<ShopInfo> lqw = buildWrapper(bo);
         lqw.lt(pageQuery.getId() != null, ShopInfo::getId, pageQuery.getId());
         return baseMapper.selectVoList(pageQuery.build(lqw));
+    }
+
+    @Override
+    public TableDataInfo<ShopInfoOptionVo> queryPageOptionList(ShopInfoBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<ShopInfo> lqw = buildQueryWrapper(bo);
+        Page<ShopInfoOptionVo> result = baseOptionMapper.selectVoPage(pageQuery.build(), lqw);
+        return TableDataInfo.build(result);
     }
 
 }

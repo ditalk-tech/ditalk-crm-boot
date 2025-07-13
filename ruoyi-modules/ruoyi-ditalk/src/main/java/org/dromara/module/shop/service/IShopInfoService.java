@@ -1,5 +1,6 @@
 package org.dromara.module.shop.service;
 
+import org.dromara.module.shop.domain.vo.ShopInfoOptionVo;
 import org.dromara.module.shop.domain.vo.ShopInfoVo;
 import org.dromara.module.shop.domain.bo.ShopInfoBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -82,4 +83,6 @@ public interface IShopInfoService {
      * @return 店铺信息列表
      */
     List<ShopInfoVo> queryList(ShopInfoBo bo, IdPageQuery pageQuery);
+
+    TableDataInfo<ShopInfoOptionVo> queryPageOptionList(ShopInfoBo bo, PageQuery pageQuery);
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.module.shop.domain.vo.ShopInfoOptionVo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -43,6 +44,15 @@ public class ShopInfoController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo<ShopInfoVo> list(ShopInfoBo bo, PageQuery pageQuery) {
         return shopInfoService.queryPageList(bo, pageQuery);
+    }
+
+    /**
+     * 查询店铺信息列表
+     */
+    @SaCheckPermission("shop:info:list")
+    @GetMapping("/list/option")
+    public TableDataInfo<ShopInfoOptionVo> listOption(ShopInfoBo bo, PageQuery pageQuery) {
+        return shopInfoService.queryPageOptionList(bo, pageQuery);
     }
 
     /**

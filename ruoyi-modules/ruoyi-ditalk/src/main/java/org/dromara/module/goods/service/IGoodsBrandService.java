@@ -1,5 +1,6 @@
 package org.dromara.module.goods.service;
 
+import org.dromara.module.goods.domain.vo.GoodsBrandOptionVo;
 import org.dromara.module.goods.domain.vo.GoodsBrandVo;
 import org.dromara.module.goods.domain.bo.GoodsBrandBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -82,4 +83,6 @@ public interface IGoodsBrandService {
      * @return 商品品牌信息列表
      */
     List<GoodsBrandVo> queryList(GoodsBrandBo bo, IdPageQuery pageQuery);
+
+    TableDataInfo<GoodsBrandOptionVo> queryPageOptionList(GoodsBrandBo bo, PageQuery pageQuery);
 }

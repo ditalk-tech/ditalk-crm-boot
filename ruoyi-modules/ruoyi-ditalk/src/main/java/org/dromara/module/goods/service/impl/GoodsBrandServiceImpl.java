@@ -15,7 +15,9 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.module.goods.domain.GoodsBrand;
 import org.dromara.module.goods.domain.bo.GoodsBrandBo;
+import org.dromara.module.goods.domain.vo.GoodsBrandOptionVo;
 import org.dromara.module.goods.domain.vo.GoodsBrandVo;
+import org.dromara.module.goods.mapper.GoodsBrandOptionMapper;
 import org.dromara.module.goods.service.IGoodsBrandService;
 import org.dromara.module.goods.mapper.GoodsBrandMapper;
 import org.springframework.cache.annotation.CacheEvict;
@@ -38,6 +40,7 @@ import java.util.Map;
 public class GoodsBrandServiceImpl implements IGoodsBrandService {
 
     private final GoodsBrandMapper baseMapper;
+    private final GoodsBrandOptionMapper baseOptionMapper;
 
     /**
      * 查询商品品牌信息
@@ -178,6 +181,13 @@ public class GoodsBrandServiceImpl implements IGoodsBrandService {
         LambdaQueryWrapper<GoodsBrand> lqw = buildWrapper(bo);
         lqw.lt(pageQuery.getId() != null, GoodsBrand::getId, pageQuery.getId());
         return baseMapper.selectVoList(pageQuery.build(lqw));
+    }
+
+    @Override
+    public TableDataInfo<GoodsBrandOptionVo> queryPageOptionList(GoodsBrandBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<GoodsBrand> lqw = buildQueryWrapper(bo);
+        Page<GoodsBrandOptionVo> result = baseOptionMapper.selectVoPage(pageQuery.build(), lqw);
+        return TableDataInfo.build(result);
     }
 
 }
