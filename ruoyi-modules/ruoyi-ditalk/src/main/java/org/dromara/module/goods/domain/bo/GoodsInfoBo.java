@@ -81,10 +81,10 @@ public class GoodsInfoBo extends BaseEntity {
      */
     private Long brandId;
 
-    /**
-     * 商品说明
-     */
-    private String content;
+//    /**
+//     * 商品说明
+//     */
+//    private String content;
 
     /**
      * 最低价
