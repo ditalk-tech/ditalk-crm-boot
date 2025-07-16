@@ -8,8 +8,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.dromara.module.goods.domain.bo.GoodsInfoContentBo;
-import org.dromara.module.goods.domain.vo.GoodsInfoMiniVo;
-import org.dromara.module.goods.domain.vo.GoodsInfoOptionVo;
+import org.dromara.module.goods.domain.vo.*;
+import org.dromara.module.goods.service.IGoodsBrandService;
+import org.dromara.module.goods.service.IGoodsCategoryService;
+import org.dromara.module.shop.domain.vo.ShopInfoVo;
+import org.dromara.module.shop.service.IShopInfoService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -21,7 +24,6 @@ import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.module.goods.domain.vo.GoodsInfoVo;
 import org.dromara.module.goods.domain.bo.GoodsInfoBo;
 import org.dromara.module.goods.service.IGoodsInfoService;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -39,6 +41,26 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class GoodsInfoController extends BaseController {
 
     private final IGoodsInfoService goodsInfoService;
+    private final IShopInfoService shopInfoService;
+    private final IGoodsCategoryService goodsCategoryService;
+    private final IGoodsBrandService goodsBrandService;
+
+    private void extendVo(GoodsInfoVo goodsInfoVo) {
+        if (goodsInfoVo == null) {
+            return;
+        }
+        // 店铺信息
+        ShopInfoVo shopInfoVo = shopInfoService.queryById(goodsInfoVo.getShopId());
+        if (shopInfoVo != null) goodsInfoVo.setShopName(shopInfoVo.getName());
+        // 商品分类
+        GoodsCategoryVo goodsCategoryVo = goodsCategoryService.queryById(goodsInfoVo.getCategoryId());
+        if (goodsCategoryVo != null) goodsInfoVo.setCategoryName(goodsCategoryVo.getName());
+        // 商品品牌
+        if (goodsInfoVo.getBrandId() != null && goodsInfoVo.getBrandId() > 0) {
+            GoodsBrandVo goodsBrandVo = goodsBrandService.queryById(goodsInfoVo.getBrandId());
+            if (goodsBrandVo != null) goodsInfoVo.setBrandName(goodsBrandVo.getName());
+        }
+    }
 
     /**
      * 查询商品mini信息列表
@@ -65,8 +87,11 @@ public class GoodsInfoController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo<GoodsInfoVo> list(GoodsInfoBo bo, PageQuery pageQuery) {
         TableDataInfo<GoodsInfoVo> tableDataInfo = goodsInfoService.queryPageList(bo, pageQuery);
-        tableDataInfo.getRows().forEach(r -> r.setContent(null)); // 默认不返回content字段，减少网络传输量
-        return goodsInfoService.queryPageList(bo, pageQuery);
+        tableDataInfo.getRows().forEach(r -> {
+            r.setContent(null); // 默认不返回content字段，减少网络传输量
+            extendVo(r);
+        });
+        return tableDataInfo;
     }
 
     /**

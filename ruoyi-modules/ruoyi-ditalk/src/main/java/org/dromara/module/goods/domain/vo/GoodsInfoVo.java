@@ -55,10 +55,22 @@ public class GoodsInfoVo implements Serializable {
     private Long shopId;
 
     /**
+     * 店铺名
+     */
+    @ExcelProperty(value = "店铺名")
+    private String shopName;
+
+    /**
      * 分类ID
      */
     @ExcelProperty(value = "分类ID")
     private Long categoryId;
+
+    /**
+     * 分类名
+     */
+    @ExcelProperty(value = "分类名")
+    private String categoryName;
 
     /**
      * 编码
@@ -111,6 +123,12 @@ public class GoodsInfoVo implements Serializable {
      */
     @ExcelProperty(value = "品牌ID")
     private Long brandId;
+
+    /**
+     * 品牌名
+     */
+    @ExcelProperty(value = "品牌名")
+    private String brandName;
 
     /**
      * 商品说明
