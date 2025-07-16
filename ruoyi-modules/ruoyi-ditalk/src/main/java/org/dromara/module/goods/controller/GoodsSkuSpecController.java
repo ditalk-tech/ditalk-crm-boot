@@ -16,8 +16,12 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.module.goods.domain.bo.GoodsSkuSpecBo;
+import org.dromara.module.goods.domain.vo.GoodsCategoryVo;
 import org.dromara.module.goods.domain.vo.GoodsSkuSpecVo;
+import org.dromara.module.goods.service.IGoodsCategoryService;
 import org.dromara.module.goods.service.IGoodsSkuSpecService;
+import org.dromara.module.shop.domain.vo.ShopInfoVo;
+import org.dromara.module.shop.service.IShopInfoService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +40,20 @@ import java.util.List;
 public class GoodsSkuSpecController extends BaseController {
 
     private final IGoodsSkuSpecService goodsSkuSpecService;
+    private final IShopInfoService shopInfoService;
+    private final IGoodsCategoryService goodsCategoryService;
+
+    private void extendVo(GoodsSkuSpecVo vo) {
+        if (vo == null) {
+            return;
+        }
+        // 店铺信息
+        ShopInfoVo shopInfoVo = shopInfoService.queryById(vo.getShopId());
+        if (shopInfoVo != null) vo.setShopName(shopInfoVo.getName());
+        // 商品分类
+        GoodsCategoryVo goodsCategoryVo = goodsCategoryService.queryById(vo.getCategoryId());
+        if (goodsCategoryVo != null) vo.setCategoryName(goodsCategoryVo.getName());
+    }
 
     /**
      * 查询SKU规格列表
@@ -43,7 +61,13 @@ public class GoodsSkuSpecController extends BaseController {
     @SaCheckPermission("goods:skuSpec:list")
     @GetMapping("/list")
     public TableDataInfo<GoodsSkuSpecVo> list(GoodsSkuSpecBo bo, PageQuery pageQuery) {
-        return goodsSkuSpecService.queryPageList(bo, pageQuery);
+        TableDataInfo<GoodsSkuSpecVo> tableDataInfo = goodsSkuSpecService.queryPageList(bo, pageQuery);
+        if (tableDataInfo.getRows() != null && !tableDataInfo.getRows().isEmpty()) {
+            tableDataInfo.getRows().forEach(r -> {
+                extendVo(r);
+            });
+        }
+        return tableDataInfo;
     }
 
     /**

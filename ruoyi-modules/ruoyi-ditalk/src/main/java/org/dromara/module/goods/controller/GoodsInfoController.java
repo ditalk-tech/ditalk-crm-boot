@@ -87,10 +87,12 @@ public class GoodsInfoController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo<GoodsInfoVo> list(GoodsInfoBo bo, PageQuery pageQuery) {
         TableDataInfo<GoodsInfoVo> tableDataInfo = goodsInfoService.queryPageList(bo, pageQuery);
-        tableDataInfo.getRows().forEach(r -> {
-            r.setContent(null); // 默认不返回content字段，减少网络传输量
-            extendVo(r);
-        });
+        if (tableDataInfo.getRows() != null && !tableDataInfo.getRows().isEmpty()) {
+            tableDataInfo.getRows().forEach(r -> {
+                r.setContent(null); // 默认不返回content字段，减少网络传输量
+                extendVo(r);
+            });
+        }
         return tableDataInfo;
     }
 

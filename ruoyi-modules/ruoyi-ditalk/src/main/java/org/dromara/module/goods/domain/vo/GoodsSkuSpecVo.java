@@ -53,10 +53,22 @@ public class GoodsSkuSpecVo implements Serializable {
     private Long shopId;
 
     /**
+     * 店铺名
+     */
+    @ExcelProperty(value = "店铺名")
+    private String shopName;
+
+    /**
      * 类目ID
      */
     @ExcelProperty(value = "类目ID")
     private Long categoryId;
+
+    /**
+     * 类目名
+     */
+    @ExcelProperty(value = "类目名")
+    private String categoryName;
 
     /**
      * 规格名称
