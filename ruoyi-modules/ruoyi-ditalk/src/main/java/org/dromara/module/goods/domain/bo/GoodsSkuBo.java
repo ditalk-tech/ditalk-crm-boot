@@ -1,5 +1,6 @@
 package org.dromara.module.goods.domain.bo;
 
+import org.dromara.common.validate.BatchGroup;
 import org.dromara.module.goods.domain.GoodsSku;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
@@ -47,51 +48,54 @@ public class GoodsSkuBo extends BaseEntity {
     /**
      * SKU编码
      */
-    @NotBlank(message = "SKU编码不能为空", groups = { AddGroup.class, EditGroup.class })
     private String skuSn;
 
     /**
      * 图片
      */
+    @NotNull(message = "图片不能为空", groups = { AddGroup.class, EditGroup.class, BatchGroup.class })
     private Long mainPic;
 
     /**
      * 规格JSON
      */
+    @NotNull(message = "规格不能为空", groups = { AddGroup.class, EditGroup.class, BatchGroup.class })
     private String specJson;
 
     /**
      * 售价
      */
-    @NotNull(message = "售价不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "售价不能为空", groups = { AddGroup.class, EditGroup.class, BatchGroup.class })
     private Long salePrice;
 
     /**
      * 原价
      */
+//    @NotNull(message = "原价不能为空", groups = { AddGroup.class, EditGroup.class, BatchGroup.class })
     private Long originalPrice;
 
     /**
      * 成本价
      */
+//    @NotNull(message = "成本价不能为空", groups = { AddGroup.class, EditGroup.class, BatchGroup.class })
     private Long costPrice;
 
     /**
      * 重量(kg)
      */
-    @NotNull(message = "重量(kg)不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "重量(kg)不能为空", groups = { AddGroup.class, EditGroup.class, BatchGroup.class })
     private Long weight;
 
     /**
      * 体积(m³)
      */
-    @NotNull(message = "体积(m³)不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "体积(m³)不能为空", groups = { AddGroup.class, EditGroup.class, BatchGroup.class })
     private Long volume;
 
     /**
      * 可用库存
      */
-    @NotNull(message = "可用库存", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "可用库存", groups = { AddGroup.class, EditGroup.class, BatchGroup.class })
     private Long availableStock;
 
     /**

@@ -1,5 +1,6 @@
 package org.dromara.module.goods.service;
 
+import org.dromara.module.goods.domain.bo.GoodsSkuBatchBo;
 import org.dromara.module.goods.domain.vo.GoodsSkuVo;
 import org.dromara.module.goods.domain.bo.GoodsSkuBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -82,4 +83,6 @@ public interface IGoodsSkuService {
      * @return 商品SKU列表
      */
     List<GoodsSkuVo> queryList(GoodsSkuBo bo, IdPageQuery pageQuery);
+
+    Boolean batchUpdateByBo(GoodsSkuBatchBo bo);
 }

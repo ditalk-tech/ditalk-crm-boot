@@ -4,6 +4,7 @@ import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.constant.CacheNames;
@@ -14,6 +15,7 @@ import org.dromara.common.mybatis.core.page.IdPageQuery;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.module.goods.domain.GoodsSku;
+import org.dromara.module.goods.domain.bo.GoodsSkuBatchBo;
 import org.dromara.module.goods.domain.bo.GoodsSkuBo;
 import org.dromara.module.goods.domain.vo.GoodsSkuVo;
 import org.dromara.module.goods.service.IGoodsSkuService;
@@ -177,6 +179,23 @@ public class GoodsSkuServiceImpl implements IGoodsSkuService {
         LambdaQueryWrapper<GoodsSku> lqw = buildWrapper(bo);
         lqw.lt(pageQuery.getId() != null, GoodsSku::getId, pageQuery.getId());
         return baseMapper.selectVoList(pageQuery.build(lqw));
+    }
+
+    @Override
+    @DSTransactional
+    public Boolean batchUpdateByBo(GoodsSkuBatchBo bo) {
+        List<GoodsSkuBo> goodsSkuBos = bo.getGoodsSkuBos();
+        Boolean flag = true;
+        for (GoodsSkuBo sku : goodsSkuBos) {
+            sku.setShopId(bo.getShopId());
+            sku.setGoodsId(bo.getGoodsId());
+            if (sku.getId() == null) {
+                flag = insertByBo(sku);
+            } else {
+                updateByBo(sku);
+            }
+        }
+        return flag;
     }
 
 }

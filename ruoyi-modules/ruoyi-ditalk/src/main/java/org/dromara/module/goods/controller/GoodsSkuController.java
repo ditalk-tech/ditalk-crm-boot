@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.common.validate.BatchGroup;
+import org.dromara.handler.IGoodsSkuHandler;
+import org.dromara.module.goods.domain.bo.GoodsSkuBatchBo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -35,6 +38,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class GoodsSkuController extends BaseController {
 
     private final IGoodsSkuService goodsSkuService;
+    private final IGoodsSkuHandler goodsSkuHandler;
 
     /**
      * 查询商品SKU列表
@@ -101,5 +105,16 @@ public class GoodsSkuController extends BaseController {
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
         return toAjax(goodsSkuService.deleteWithValidByIds(List.of(ids), true));
+    }
+
+    /**
+     * 批量添加、修改商品SKU
+     */
+    @SaCheckPermission("goods:sku:edit")
+    @Log(title = "商品SKU", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PutMapping("/batch")
+    public R<Void> batchEdit(@Validated(BatchGroup.class) @RequestBody GoodsSkuBatchBo bo) {
+        return toAjax(goodsSkuHandler.batchUpdateByBo(bo));
     }
 }
