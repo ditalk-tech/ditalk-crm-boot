@@ -1,26 +1,27 @@
 package org.dromara.module.goods.controller;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.annotation.Validated;
-import org.dromara.common.idempotent.annotation.RepeatSubmit;
-import org.dromara.common.log.annotation.Log;
-import org.dromara.common.web.core.BaseController;
-import org.dromara.common.mybatis.core.page.PageQuery;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
-import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.module.goods.domain.vo.GoodsSkuSpecVo;
-import org.dromara.module.goods.domain.bo.GoodsSkuSpecBo;
-import org.dromara.module.goods.service.IGoodsSkuSpecService;
+import org.dromara.common.idempotent.annotation.RepeatSubmit;
+import org.dromara.common.log.annotation.Log;
+import org.dromara.common.log.enums.BusinessType;
+import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.web.core.BaseController;
+import org.dromara.module.goods.domain.bo.GoodsSkuSpecBo;
+import org.dromara.module.goods.domain.vo.GoodsSkuSpecVo;
+import org.dromara.module.goods.service.IGoodsSkuSpecService;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * SKU规格
@@ -102,4 +103,19 @@ public class GoodsSkuSpecController extends BaseController {
                           @PathVariable Long[] ids) {
         return toAjax(goodsSkuSpecService.deleteWithValidByIds(List.of(ids), true));
     }
+
+    /**
+     * 查询SKU规格列表
+     *
+     * @param shopId 店铺ID
+     * @param categoryId 分类ID
+     */
+    @SaCheckPermission("goods:skuSpec:list")
+    @GetMapping("/{shopId}/{categoryId}")
+    public R<List<GoodsSkuSpecVo>> queryByShopIdAndCategoryId(
+        @NotNull(message = "店铺不能为空") @PathVariable Long shopId,
+        @NotNull(message = "分类不能为空") @PathVariable Long categoryId) {
+        return R.ok(goodsSkuSpecService.queryByShopIdAndCategoryId(shopId, categoryId));
+    }
+
 }

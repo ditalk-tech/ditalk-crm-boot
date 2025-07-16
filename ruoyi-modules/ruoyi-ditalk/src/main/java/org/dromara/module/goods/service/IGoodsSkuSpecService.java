@@ -1,5 +1,6 @@
 package org.dromara.module.goods.service;
 
+import jakarta.validation.constraints.NotNull;
 import org.dromara.module.goods.domain.vo.GoodsSkuSpecVo;
 import org.dromara.module.goods.domain.bo.GoodsSkuSpecBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -82,4 +83,13 @@ public interface IGoodsSkuSpecService {
      * @return SKU规格列表
      */
     List<GoodsSkuSpecVo> queryList(GoodsSkuSpecBo bo, IdPageQuery pageQuery);
+
+    /**
+     * 根据店铺ID和类目ID查询SKU规格
+     *
+     * @param shopId     店铺ID
+     * @param categoryId 类目ID
+     * @return SKU规格
+     */
+    List<GoodsSkuSpecVo> queryByShopIdAndCategoryId(Long shopId, Long categoryId);
 }

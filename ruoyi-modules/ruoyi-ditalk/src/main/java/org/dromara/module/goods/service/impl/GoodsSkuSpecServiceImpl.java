@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.constant.CacheNames;
+import org.dromara.common.constant.CommonConstants;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.SpringUtils;
 import org.dromara.common.core.utils.StringUtils;
@@ -177,6 +178,16 @@ public class GoodsSkuSpecServiceImpl implements IGoodsSkuSpecService {
         LambdaQueryWrapper<GoodsSkuSpec> lqw = buildWrapper(bo);
         lqw.lt(pageQuery.getId() != null, GoodsSkuSpec::getId, pageQuery.getId());
         return baseMapper.selectVoList(pageQuery.build(lqw));
+    }
+
+    @Override
+    public List<GoodsSkuSpecVo> queryByShopIdAndCategoryId(Long shopId, Long categoryId) {
+        GoodsSkuSpecBo bo = new GoodsSkuSpecBo();
+        bo.setShopId(shopId);
+        bo.setCategoryId(categoryId);
+        bo.setState(CommonConstants.AVAILABLE);
+        LambdaQueryWrapper<GoodsSkuSpec> lqw = buildWrapper(bo);
+        return baseMapper.selectVoList(lqw);
     }
 
 }
