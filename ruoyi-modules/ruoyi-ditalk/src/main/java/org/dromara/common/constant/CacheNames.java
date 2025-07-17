@@ -24,11 +24,7 @@ public interface CacheNames {
     String NewsInfo_Total = PREFIX + "NewsInfo_Total#7d";
     String MemberOpenid = PREFIX + "MemberOpenid#7d";
     String MemberInfo = PREFIX + "MemberInfo#7d";
-    String ContactTags = PREFIX + "ContactTags#7d";
-    String ContactLog = PREFIX + "ContactLog#7d";
-    String ContactInfo = PREFIX + "ContactInfo#7d";
     String ConfigInfo_Code = PREFIX + "ConfigInfo_Code#7d";
-    String ContactCommonTags = PREFIX + "ContactCommonTags#7d";
     String EventInfo = PREFIX + "EventInfo#7d";
     String EventMember = PREFIX + "EventMember#7d";
     String EventMoment = PREFIX + "EventMoment#7d";
@@ -40,4 +36,6 @@ public interface CacheNames {
     String GoodsBrand = PREFIX + "GoodsBrand#7d";
     String GoodsSkuSpec = PREFIX + "GoodsSkuSpec#7d";
     String GoodsSku = PREFIX + "GoodsSku#7d";
+    String CustomerInfo = PREFIX + "CustomerInfo#7d";
+    String LeadInfo = PREFIX + "LeadInfo#7d";
 }
