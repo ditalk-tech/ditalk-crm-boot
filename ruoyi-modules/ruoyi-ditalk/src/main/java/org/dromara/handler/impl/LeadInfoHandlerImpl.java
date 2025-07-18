@@ -39,7 +39,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
         Boolean f1 = leadInfoService.insertByBo(leadInfoBo);
         //
         ContactInfoBo contactInfoBo = bo.getContactInfoBo();
-        contactInfoBo.setId(leadInfoId);
+        contactInfoBo.setId(contactInfoId);
         contactInfoBo.setCustomerId(leadInfoBo.getId());
         Boolean f2 = contactInfoService.insertByBo(bo.getContactInfoBo());
         if (!f1 || !f2) throw new UserException("添加客户线索信息失败，请检查数据内容");
@@ -51,7 +51,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
     public Boolean editByBo(LeadContactBo bo) {
         Boolean f1 = leadInfoService.updateByBo(bo.getLeadInfoBo());
         Boolean f2 = contactInfoService.updateByBo(bo.getContactInfoBo());
-        if (f1 && f2) throw new UserException("更新客户线索信息失败，请检查数据内容");
+        if (!f1 || !f2) throw new UserException("更新客户线索信息失败，请检查数据内容");
         return true;
     }
 

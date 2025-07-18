@@ -2,6 +2,7 @@ package org.dromara.module.lead.domain.vo;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.dromara.module.contact.domain.vo.ContactInfoVo;
 import org.dromara.module.lead.domain.LeadInfo;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
@@ -138,5 +139,9 @@ public class LeadInfoVo implements Serializable {
     @ExcelDictFormat(dictType = "ditalk_lead_state")
     private String leadState;
 
+    /**
+     * 主联系人信息
+     */
+    private ContactInfoVo contactInfo;
 
 }

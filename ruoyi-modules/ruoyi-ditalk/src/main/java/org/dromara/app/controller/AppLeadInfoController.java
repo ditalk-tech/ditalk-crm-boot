@@ -16,7 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 用户信息
+ * 客户线索信息
  *
  * @author weidixian
  */

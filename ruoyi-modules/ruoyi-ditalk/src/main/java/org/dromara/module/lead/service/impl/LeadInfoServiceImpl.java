@@ -105,7 +105,8 @@ public class LeadInfoServiceImpl implements ILeadInfoService {
         lqw.eq(StringUtils.isNotBlank(bo.getState()), LeadInfo::getState, bo.getState());
         lqw.eq(bo.getConvertedBy() != null, LeadInfo::getConvertedBy, bo.getConvertedBy());
         lqw.eq(StringUtils.isNotBlank(bo.getLeadState()), LeadInfo::getLeadState, bo.getLeadState());
-        // lqw.eq(bo.getConvertedTime() != null, CustomerInfo::getConvertedTime, bo.getConvertedTime());
+        lqw.between(params.get("beginConvertedTime") != null && params.get("endConvertedTime") != null,
+            LeadInfo::getConvertedTime, params.get("beginConvertedTime"), params.get("endConvertedTime"));
         lqw.isNull(LeadInfo::getConvertedTime); // 未转化的客户
         return lqw;
     }
