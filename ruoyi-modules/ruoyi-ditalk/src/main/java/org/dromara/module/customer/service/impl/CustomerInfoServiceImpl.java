@@ -107,7 +107,7 @@ public class CustomerInfoServiceImpl implements ICustomerInfoService {
         lqw.eq(bo.getConvertedBy() != null, CustomerInfo::getConvertedBy, bo.getConvertedBy());
         lqw.eq(StringUtils.isNotBlank(bo.getLeadState()), CustomerInfo::getLeadState, bo.getLeadState());
         // lqw.eq(bo.getConvertedTime() != null, CustomerInfo::getConvertedTime, bo.getConvertedTime());
-        lqw.ne(CustomerInfo::getConvertedTime, null); // 已转化的客户
+        lqw.isNotNull(CustomerInfo::getConvertedTime); // 已转化的客户
         return lqw;
     }
 
