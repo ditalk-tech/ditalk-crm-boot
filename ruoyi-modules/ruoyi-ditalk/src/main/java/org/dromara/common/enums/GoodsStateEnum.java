@@ -4,16 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 会员状态枚举 ditalk_member_open_state
+ * 商品状态 ditalk_goods_state
  *
  * @author weidixian
  */
 @Getter
 @AllArgsConstructor
-public enum MemberInfoStateEnum {
+public enum GoodsStateEnum {
 
-    INACTIVE("INACTIVE", "无效"),
-    ACTIVE("ACTIVE", "有效"),
+    PRE_SALE("pre_sale", "预售"),
+    OFF_SHELF ("off_shelf", "下架"),
+    ON_SALE("on_sale", "在售"),
     ;
 
     private final String code;

@@ -4,16 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 会员状态枚举 ditalk_member_open_state
+ * 客户类型 ditalk_customer_type
  *
  * @author weidixian
  */
 @Getter
 @AllArgsConstructor
-public enum MemberInfoStateEnum {
+public enum CustomerTypeEnum {
 
-    INACTIVE("INACTIVE", "无效"),
-    ACTIVE("ACTIVE", "有效"),
+    INDIVIDUAL("INDIVIDUAL", "个人"),
+    COMPANY("COMPANY", "企业"),
     ;
 
     private final String code;

@@ -130,7 +130,7 @@ public class UniLoginServiceImpl implements IUniLoginService {
         memberInfoBo.setNickName(uniRegisterBo.getNickName());
         memberInfoBo.setPhoneNumber(uniRegisterBo.getPhoneNumber());
         memberInfoBo.setXcxAvatar(uniRegisterBo.getAvatar());
-        memberInfoBo.setState(MemberInfoStateEnum.ACTIVITY.getCode());
+        memberInfoBo.setState(MemberInfoStateEnum.ACTIVE.getCode());
         memberInfoBo.setCreateBy(id);
         memberInfoBo.setCreateTime(new Date());
         memberInfoService.insertByBo(memberInfoBo);

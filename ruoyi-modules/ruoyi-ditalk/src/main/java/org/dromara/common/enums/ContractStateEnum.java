@@ -4,16 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 会员状态枚举 ditalk_member_open_state
+ * 合同状态 ditalk_contract_state
  *
  * @author weidixian
  */
 @Getter
 @AllArgsConstructor
-public enum MemberInfoStateEnum {
+public enum ContractStateEnum {
 
-    INACTIVE("INACTIVE", "无效"),
+    TERMINATED("TERMINATED", "结束"),
+    EXPIRED("EXPIRED", "过期"),
     ACTIVE("ACTIVE", "有效"),
+    DRAFT("DRAFT", "草稿"),
     ;
 
     private final String code;
