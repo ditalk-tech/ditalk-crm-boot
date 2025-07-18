@@ -122,6 +122,7 @@ public class CustomerInfoServiceImpl implements ICustomerInfoService {
     public Boolean insertByBo(CustomerInfoBo bo) {
         if (bo.getConvertedTime() == null) {
             bo.setConvertedTime(new Date()); // 客户转化时间不能为空
+            bo.setLeadState("CONVERTED");
         }
         CustomerInfo add = MapstructUtils.convert(bo, CustomerInfo.class);
         validEntityBeforeSave(add);

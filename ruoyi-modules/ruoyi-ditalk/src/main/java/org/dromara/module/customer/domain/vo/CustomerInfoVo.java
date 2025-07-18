@@ -1,7 +1,7 @@
 package org.dromara.module.customer.domain.vo;
 
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.dromara.module.contact.domain.vo.ContactInfoVo;
 import org.dromara.module.customer.domain.CustomerInfo;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
@@ -12,7 +12,6 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
 
 
 
@@ -138,5 +137,9 @@ public class CustomerInfoVo implements Serializable {
     @ExcelDictFormat(dictType = "ditalk_lead_state")
     private String leadState;
 
+    /**
+     * 主联系人信息
+     */
+    private ContactInfoVo contactInfo;
 
 }
