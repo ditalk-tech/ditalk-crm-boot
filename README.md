@@ -1,7 +1,7 @@
 # DiTalk.tech 活动管理系统
 
-[![码云Gitee](https://gitee.com/ditalk/ditalk-event-boot/badge/star.svg)](https://gitee.com/ditalk/ditalk-event-boot)
-[![GitHub](https://img.shields.io/github/stars/ditalk-tech/ditalk-event-boot.svg)](https://github.com/ditalk-tech/ditalk-event-boot)
+[![码云Gitee](https://gitee.com/ditalk/ditalk-crm-boot/badge/star.svg)](https://gitee.com/ditalk/ditalk-crm-boot)
+[![GitHub](https://img.shields.io/github/stars/ditalk-tech/ditalk-crm-boot.svg)](https://github.com/ditalk-tech/ditalk-crm-boot)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://gitee.com/weidixian/ditalk-plus/blob/master/LICENSE)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-blue.svg)]()
 [![JDK-17](https://img.shields.io/badge/JDK-17-green.svg)]()
@@ -17,9 +17,9 @@ UniApp 用户端适配多端，方便用户随时随地浏览活动详情、在�
 
 > 系统演示：[传送门](https://ditalk.tech/) 建设中...
 
-> 管理后台地址：[Gitee](https://gitee.com/ditalk/ditalk-event-boot)   -- [Github](https://github.com/ditalk-tech/ditalk-event-boot) <br>
-> 后台前端地址：[Gitee](https://gitee.com/ditalk/ditalk-event-ui)     -- [Github](https://github.com/ditalk-tech/ditalk-event-ui) <br>
-> 用户前端地址：[Gitee](https://gitee.com/ditalk/ditalk-event-uniapp) -- [Github](https://github.com/ditalk-tech/ditalk-event-uniapp) <br>
+> 管理后台地址：[Gitee](https://gitee.com/ditalk/ditalk-crm-boot)   -- [Github](https://github.com/ditalk-tech/ditalk-crm-boot) <br>
+> 后台前端地址：[Gitee](https://gitee.com/ditalk/ditalk-crm-ui)     -- [Github](https://github.com/ditalk-tech/ditalk-crm-ui) <br>
+> 用户前端地址：[Gitee](https://gitee.com/ditalk/ditalk-crm-uniapp) -- [Github](https://github.com/ditalk-tech/ditalk-crm-uniapp) <br>
 
 ---
 

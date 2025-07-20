@@ -8,8 +8,8 @@
     <artifactId>ruoyi-vue-plus</artifactId>
     <version>${revision}</version>
 
-    <name>DiTalk-Event-Boot</name>
-    <url>https://gitee.com/ditalk/ditalk-event-boot</url>
+    <name>DiTalk-CRM-Boot</name>
+    <url>https://gitee.com/ditalk/ditalk-crm-boot</url>
     <description>DiTalk 活动管理系统</description>
 
     <properties>

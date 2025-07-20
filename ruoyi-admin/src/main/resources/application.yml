@@ -52,7 +52,7 @@ user:
 # Spring配置
 spring:
   application:
-    name: DiTalk-Event-Boot
+    name: DiTalk-CRM-Boot
   threads:
     # 开启虚拟线程 仅jdk21可用
     virtual:
@@ -179,7 +179,7 @@ springdoc:
     enabled: true
   info:
     # 标题
-    title: 'DiTalk-Event-Boot管理系统_接口文档'
+    title: 'DiTalk-CRM-Boot管理系统_接口文档'
     # 描述
     description: 'DiTalk活动管理系统后台接口信息'
     # 版本
@@ -188,7 +188,7 @@ springdoc:
     contact:
       name: DiTalk
       email: ditalk@163.com
-      url: https://gitee.com/ditalk/ditalk-event-boot
+      url: https://gitee.com/ditalk/ditalk-crm-boot
   components:
     # 鉴权方式配置
     security-schemes:
