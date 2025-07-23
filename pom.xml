@@ -10,7 +10,7 @@
 
     <name>DiTalk-CRM-Boot</name>
     <url>https://gitee.com/ditalk/ditalk-crm-boot</url>
-    <description>DiTalk 活动管理系统</description>
+    <description>DiTalk 客户管理系统</description>
 
     <properties>
         <revision>5.4.0</revision>

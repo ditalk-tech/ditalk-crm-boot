@@ -181,7 +181,7 @@ springdoc:
     # 标题
     title: 'DiTalk-CRM-Boot管理系统_接口文档'
     # 描述
-    description: 'DiTalk活动管理系统后台接口信息'
+    description: 'DiTalk客户管理系统后台接口信息'
     # 版本
     version: '版本号: ${ruoyi.version}'
     # 作者信息
