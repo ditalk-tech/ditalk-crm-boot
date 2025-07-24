@@ -6,12 +6,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.app.domain.bo.CustomerContactBo;
 import org.dromara.common.core.exception.user.UserException;
+import org.dromara.common.mybatis.core.page.PageQuery;
+import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.handler.ICustomerInfoHandler;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.customer.domain.bo.CustomerInfoBo;
+import org.dromara.module.customer.domain.vo.CustomerInfoVo;
 import org.dromara.module.customer.service.ICustomerInfoService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 客户信息应用接口
@@ -53,6 +59,18 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         Boolean f2 = contactInfoService.updateByBo(bo.getContactInfoBo());
         if (!f1 || !f2) throw new UserException("更新客户信息失败，请检查数据内容");
         return true;
+    }
+
+    @Override
+    public List<CustomerInfoVo> myCustomers(CustomerInfoBo bo, PageQuery pageQuery) {
+        bo.setAssignedTo(LoginHelper.getUserId());
+        TableDataInfo<CustomerInfoVo> tableDataInfo = customerInfoService.queryPageList(bo, pageQuery);
+        return tableDataInfo.getRows();
+    }
+
+    @Override
+    public CustomerInfoVo myCustomer(Long id) {
+        return customerInfoService.queryById(id);
     }
 
 }
