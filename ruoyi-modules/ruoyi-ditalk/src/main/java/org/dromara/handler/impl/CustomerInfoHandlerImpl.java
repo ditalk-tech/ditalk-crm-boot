@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.app.domain.bo.CustomerContactBo;
 import org.dromara.common.core.exception.user.UserException;
-import org.dromara.common.mybatis.core.page.PageQuery;
-import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.handler.ICustomerInfoHandler;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
@@ -16,8 +14,6 @@ import org.dromara.module.customer.domain.bo.CustomerInfoBo;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
 import org.dromara.module.customer.service.ICustomerInfoService;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 客户信息应用接口
@@ -36,10 +32,12 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
     @Override
     @DSTransactional
     public Boolean addByBo(CustomerContactBo bo) {
+        // 生成主键ID
         Long customerInfoId = IdUtil.getSnowflakeNextId();
         Long contactInfoId = IdUtil.getSnowflakeNextId();
         //
         CustomerInfoBo customerInfoBo = bo.getCustomerInfoBo();
+        customerInfoBo.setAssignedTo(LoginHelper.getUserId()); // 设置分配给当前登录用户
         customerInfoBo.setId(customerInfoId);
         customerInfoBo.setContactId(contactInfoId);
         Boolean f1 = customerInfoService.insertByBo(customerInfoBo);
@@ -55,22 +53,17 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
     @Override
     @DSTransactional
     public Boolean editByBo(CustomerContactBo bo) {
+        CustomerInfoVo customerInfoVo = customerInfoService.queryById(bo.getCustomerInfoBo().getId());
+        if (customerInfoVo == null) {
+            throw new UserException("客户不存在，请检查数据内容");
+        }
+        if (customerInfoVo.getAssignedTo() != null && !customerInfoVo.getAssignedTo().equals(LoginHelper.getUserId())) {
+            throw new UserException("您没有权限修改该客户信息");
+        }
         Boolean f1 = customerInfoService.updateByBo(bo.getCustomerInfoBo());
         Boolean f2 = contactInfoService.updateByBo(bo.getContactInfoBo());
         if (!f1 || !f2) throw new UserException("更新客户信息失败，请检查数据内容");
         return true;
-    }
-
-    @Override
-    public List<CustomerInfoVo> myCustomers(CustomerInfoBo bo, PageQuery pageQuery) {
-        bo.setAssignedTo(LoginHelper.getUserId());
-        TableDataInfo<CustomerInfoVo> tableDataInfo = customerInfoService.queryPageList(bo, pageQuery);
-        return tableDataInfo.getRows();
-    }
-
-    @Override
-    public CustomerInfoVo myCustomer(Long id) {
-        return customerInfoService.queryById(id);
     }
 
 }

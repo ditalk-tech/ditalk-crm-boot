@@ -1,30 +1,31 @@
 package org.dromara.module.customer.controller;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import org.dromara.module.contact.service.IContactInfoService;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.annotation.Validated;
-import org.dromara.common.idempotent.annotation.RepeatSubmit;
-import org.dromara.common.log.annotation.Log;
-import org.dromara.common.web.core.BaseController;
-import org.dromara.common.mybatis.core.page.PageQuery;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
-import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.module.customer.domain.vo.CustomerInfoVo;
-import org.dromara.module.customer.domain.bo.CustomerInfoBo;
-import org.dromara.module.customer.service.ICustomerInfoService;
+import org.dromara.common.idempotent.annotation.RepeatSubmit;
+import org.dromara.common.log.annotation.Log;
+import org.dromara.common.log.enums.BusinessType;
+import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.web.core.BaseController;
+import org.dromara.module.contact.service.IContactInfoService;
+import org.dromara.module.customer.domain.bo.CustomerInfoBo;
+import org.dromara.module.customer.domain.vo.CustomerInfoVo;
+import org.dromara.module.customer.service.ICustomerInfoService;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
- * 客户信息
+ * 客户信息 —— 没进行数据权限控制的接口
  *
  * @author weidixian
  * @date 2025-07-17
@@ -80,6 +81,9 @@ public class CustomerInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CustomerInfoBo bo) {
+//        if (bo.getAssignedTo() == null) {
+//            bo.setAssignedTo(LoginHelper.getUserId()); // 如果没有指定负责人，则默认当前登录用户
+//        }
         return toAjax(customerInfoService.insertByBo(bo));
     }
 
@@ -91,6 +95,13 @@ public class CustomerInfoController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CustomerInfoBo bo) {
+//        CustomerInfoVo customerInfoVo = customerInfoService.queryById(bo.getId());
+//        if (customerInfoVo == null) {
+//            return R.fail("客户信息不存在");
+//        }
+//        if (customerInfoVo.getAssignedTo() != null && !LoginHelper.getUserId().equals(customerInfoVo.getAssignedTo())) {
+//            return R.fail("您没有权限修改该客户信息");
+//        }
         return toAjax(customerInfoService.updateByBo(bo));
     }
 
@@ -106,4 +117,5 @@ public class CustomerInfoController extends BaseController {
                           @PathVariable Long[] ids) {
         return toAjax(customerInfoService.deleteWithValidByIds(List.of(ids), true));
     }
+
 }
