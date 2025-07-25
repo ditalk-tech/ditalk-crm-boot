@@ -161,5 +161,14 @@ public class ContactInfoBo extends BaseEntity {
     @NotBlank(message = "状态不能为空", groups = { AddGroup.class, EditGroup.class })
     private String state;
 
+    /**
+     * 分配到
+     */
+    private Long assignedTo;
+
+    /**
+     * 分配部门
+     */
+    private Long assignedDept;
 
 }

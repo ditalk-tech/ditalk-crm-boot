@@ -52,8 +52,8 @@ public class PublicCustomerInfoController extends BaseController {
     public R<CustomerInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                                @PathVariable Long id) {
         CustomerInfoVo customerInfoVo = customerInfoService.queryById(id);
-        if (customerInfoVo == null && customerInfoVo.getAssignedTo() != null) {
-            return R.fail("数据错误");
+        if (customerInfoVo == null && customerInfoVo.getAssignedTo() != null) { // 检查是否为公海客户
+            return R.fail("数据不存在");
         }
         customerInfoVo.setContactInfo(contactInfoService.queryById(customerInfoVo.getContactId()));
         return R.ok(customerInfoVo);

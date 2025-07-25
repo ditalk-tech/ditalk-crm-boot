@@ -81,6 +81,11 @@ public class CustomerInfo extends TenantEntity {
     private Long assignedTo;
 
     /**
+     * 分配部门
+     */
+    private Long assignedDept;
+
+    /**
      * 备注信息
      */
     private String remark;

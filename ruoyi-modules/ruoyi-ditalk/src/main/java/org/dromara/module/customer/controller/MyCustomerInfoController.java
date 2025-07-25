@@ -13,9 +13,8 @@ import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
-import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
-import org.dromara.handler.IMyCustomerInfoHandler;
+import org.dromara.handler.ICustomerInfoHandler;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.customer.domain.bo.CustomerInfoBo;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
@@ -37,7 +36,7 @@ public class MyCustomerInfoController extends BaseController {
 
     private final ICustomerInfoService customerInfoService;
     private final IContactInfoService contactInfoService;
-    private final IMyCustomerInfoHandler myCustomerInfoHandler;
+    private final ICustomerInfoHandler customerInfoHandler;
 
     /**
      * 查询我的客户信息列表
@@ -45,7 +44,6 @@ public class MyCustomerInfoController extends BaseController {
     @SaCheckPermission("customer:my:list")
     @GetMapping("/list")
     public TableDataInfo<CustomerInfoVo> list(CustomerInfoBo bo, PageQuery pageQuery) {
-        bo.setAssignedTo(LoginHelper.getUserId());
         return customerInfoService.queryPageList(bo, pageQuery);
     }
 
@@ -59,8 +57,8 @@ public class MyCustomerInfoController extends BaseController {
     public R<CustomerInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
         CustomerInfoVo customerInfoVo = customerInfoService.queryById(id);
-        if (customerInfoVo == null && !customerInfoVo.getAssignedTo().equals(LoginHelper.getUserId())) {
-            return R.fail("数据错误");
+        if (customerInfoVo == null) {
+            return R.fail("数据不存在");
         }
         customerInfoVo.setContactInfo(contactInfoService.queryById(customerInfoVo.getContactId()));
         return R.ok(customerInfoVo);
@@ -74,7 +72,7 @@ public class MyCustomerInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody @Valid CustomerContactBo bo) {
-        return toAjax(myCustomerInfoHandler.addByBo(bo));
+        return toAjax(customerInfoHandler.addByBo(bo));
     }
 
     /**
@@ -85,7 +83,7 @@ public class MyCustomerInfoController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody @Valid CustomerContactBo bo) {
-        return toAjax(myCustomerInfoHandler.editByBo(bo));
+        return toAjax(customerInfoHandler.editByBo(bo));
     }
 
 }

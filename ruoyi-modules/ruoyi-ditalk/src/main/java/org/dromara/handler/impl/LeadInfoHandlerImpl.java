@@ -11,7 +11,6 @@ import org.dromara.handler.ILeadInfoHandler;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.lead.domain.bo.LeadInfoBo;
-import org.dromara.module.lead.domain.vo.LeadInfoVo;
 import org.dromara.module.lead.service.ILeadInfoService;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +36,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
         //
         LeadInfoBo leadInfoBo = bo.getLeadInfoBo();
         leadInfoBo.setAssignedTo(LoginHelper.getUserId()); // 设置分配给当前登录用户
+        leadInfoBo.setAssignedDept(LoginHelper.getDeptId());
         leadInfoBo.setId(leadInfoId);
         leadInfoBo.setContactId(contactInfoId);
         Boolean f1 = leadInfoService.insertByBo(leadInfoBo);
@@ -52,13 +52,6 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
     @Override
     @DSTransactional
     public Boolean editByBo(LeadContactBo bo) {
-        LeadInfoVo leadInfoVo = leadInfoService.queryById(bo.getLeadInfoBo().getId());
-        if (leadInfoVo == null) {
-            throw new UserException("客户线索不存在，请检查数据内容");
-        }
-        if (leadInfoVo.getAssignedTo() != null && !leadInfoVo.getAssignedTo().equals(LoginHelper.getUserId())) {
-            throw new UserException("您没有权限修改该客户线索信息");
-        }
         Boolean f1 = leadInfoService.updateByBo(bo.getLeadInfoBo());
         Boolean f2 = contactInfoService.updateByBo(bo.getContactInfoBo());
         if (!f1 || !f2) throw new UserException("更新客户线索信息失败，请检查数据内容");

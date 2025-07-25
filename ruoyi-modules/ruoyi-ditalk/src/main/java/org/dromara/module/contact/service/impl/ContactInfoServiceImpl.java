@@ -13,11 +13,12 @@ import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.IdPageQuery;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.module.contact.domain.ContactInfo;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
 import org.dromara.module.contact.domain.vo.ContactInfoVo;
-import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.contact.mapper.ContactInfoMapper;
+import org.dromara.module.contact.service.IContactInfoService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -114,6 +115,8 @@ public class ContactInfoServiceImpl implements IContactInfoService {
         lqw.eq(StringUtils.isNotBlank(bo.getWhatsApp()), ContactInfo::getWhatsApp, bo.getWhatsApp());
         lqw.eq(StringUtils.isNotBlank(bo.getFacebook()), ContactInfo::getFacebook, bo.getFacebook());
         lqw.eq(StringUtils.isNotBlank(bo.getState()), ContactInfo::getState, bo.getState());
+        lqw.eq(bo.getAssignedTo() != null, ContactInfo::getAssignedTo, bo.getAssignedTo());
+        lqw.eq(bo.getAssignedDept() != null, ContactInfo::getAssignedDept, bo.getAssignedDept());
         return lqw;
     }
 
@@ -126,6 +129,8 @@ public class ContactInfoServiceImpl implements IContactInfoService {
     @Override
     public Boolean insertByBo(ContactInfoBo bo) {
         ContactInfo add = MapstructUtils.convert(bo, ContactInfo.class);
+        add.setAssignedTo(LoginHelper.getUserId());
+        add.setAssignedDept(LoginHelper.getDeptId());
         validEntityBeforeSave(add);
         boolean flag = baseMapper.insert(add) > 0;
         if (flag) {

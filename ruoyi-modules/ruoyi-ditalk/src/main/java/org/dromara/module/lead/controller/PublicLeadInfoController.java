@@ -53,7 +53,7 @@ public class PublicLeadInfoController extends BaseController {
                                      @PathVariable Long id) {
         LeadInfoVo leadInfoVo = leadInfoService.queryById(id);
         if (leadInfoVo == null && leadInfoVo.getAssignedTo() != null) {
-            return R.fail("数据错误");
+            return R.fail("数据不存在");
         }
         leadInfoVo.setContactInfo(contactInfoService.queryById(leadInfoVo.getContactId()));
         return R.ok(leadInfoVo);

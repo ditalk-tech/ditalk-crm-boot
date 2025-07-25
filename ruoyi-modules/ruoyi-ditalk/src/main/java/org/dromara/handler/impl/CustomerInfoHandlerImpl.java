@@ -11,7 +11,6 @@ import org.dromara.handler.ICustomerInfoHandler;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.customer.domain.bo.CustomerInfoBo;
-import org.dromara.module.customer.domain.vo.CustomerInfoVo;
 import org.dromara.module.customer.service.ICustomerInfoService;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +37,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         //
         CustomerInfoBo customerInfoBo = bo.getCustomerInfoBo();
         customerInfoBo.setAssignedTo(LoginHelper.getUserId()); // 设置分配给当前登录用户
+        customerInfoBo.setAssignedDept(LoginHelper.getDeptId());
         customerInfoBo.setId(customerInfoId);
         customerInfoBo.setContactId(contactInfoId);
         Boolean f1 = customerInfoService.insertByBo(customerInfoBo);
@@ -53,13 +53,6 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
     @Override
     @DSTransactional
     public Boolean editByBo(CustomerContactBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryById(bo.getCustomerInfoBo().getId());
-        if (customerInfoVo == null) {
-            throw new UserException("客户不存在，请检查数据内容");
-        }
-        if (customerInfoVo.getAssignedTo() != null && !customerInfoVo.getAssignedTo().equals(LoginHelper.getUserId())) {
-            throw new UserException("您没有权限修改该客户信息");
-        }
         Boolean f1 = customerInfoService.updateByBo(bo.getCustomerInfoBo());
         Boolean f2 = contactInfoService.updateByBo(bo.getContactInfoBo());
         if (!f1 || !f2) throw new UserException("更新客户信息失败，请检查数据内容");

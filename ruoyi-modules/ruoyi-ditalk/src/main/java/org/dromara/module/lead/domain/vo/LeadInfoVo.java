@@ -102,6 +102,12 @@ public class LeadInfoVo implements Serializable {
     private Long assignedTo;
 
     /**
+     * 分配部门
+     */
+    @ExcelProperty(value = "分配部门")
+    private Long assignedDept;
+
+    /**
      * 备注信息
      */
     @ExcelProperty(value = "备注信息")

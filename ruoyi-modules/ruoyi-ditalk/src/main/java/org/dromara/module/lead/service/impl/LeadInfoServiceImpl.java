@@ -101,6 +101,7 @@ public class LeadInfoServiceImpl implements ILeadInfoService {
         lqw.eq(StringUtils.isNotBlank(bo.getTier()), LeadInfo::getTier, bo.getTier());
         lqw.like(StringUtils.isNotBlank(bo.getAddress()), LeadInfo::getAddress, bo.getAddress());
         lqw.eq(bo.getAssignedTo() != null, LeadInfo::getAssignedTo, bo.getAssignedTo());
+        lqw.eq(bo.getAssignedDept() != null, LeadInfo::getAssignedDept, bo.getAssignedDept());
         lqw.eq(bo.getContactId() != null, LeadInfo::getContactId, bo.getContactId());
         lqw.eq(StringUtils.isNotBlank(bo.getState()), LeadInfo::getState, bo.getState());
         lqw.eq(bo.getConvertedBy() != null, LeadInfo::getConvertedBy, bo.getConvertedBy());

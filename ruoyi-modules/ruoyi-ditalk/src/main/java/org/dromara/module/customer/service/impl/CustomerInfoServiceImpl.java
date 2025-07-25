@@ -102,6 +102,7 @@ public class CustomerInfoServiceImpl implements ICustomerInfoService {
         lqw.eq(StringUtils.isNotBlank(bo.getTier()), CustomerInfo::getTier, bo.getTier());
         lqw.like(StringUtils.isNotBlank(bo.getAddress()), CustomerInfo::getAddress, bo.getAddress());
         lqw.eq(bo.getAssignedTo() != null, CustomerInfo::getAssignedTo, bo.getAssignedTo());
+        lqw.eq(bo.getAssignedDept() != null, CustomerInfo::getAssignedDept, bo.getAssignedDept());
         lqw.eq(bo.getContactId() != null, CustomerInfo::getContactId, bo.getContactId());
         lqw.eq(StringUtils.isNotBlank(bo.getState()), CustomerInfo::getState, bo.getState());
         lqw.eq(bo.getConvertedBy() != null, CustomerInfo::getConvertedBy, bo.getConvertedBy());
