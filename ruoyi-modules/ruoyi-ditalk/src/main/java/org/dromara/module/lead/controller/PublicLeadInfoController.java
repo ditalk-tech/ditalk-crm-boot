@@ -38,6 +38,7 @@ public class PublicLeadInfoController extends BaseController {
     @SaCheckPermission("lead:public:list")
     @GetMapping("/list")
     public TableDataInfo<LeadInfoVo> list(LeadInfoBo bo, PageQuery pageQuery) {
+        bo.getParams().put("isPublic", true); // 设置查询条件为公海客户
         return leadInfoService.queryPageList(bo, pageQuery);
     }
 
@@ -51,6 +52,9 @@ public class PublicLeadInfoController extends BaseController {
     public R<LeadInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
         LeadInfoVo leadInfoVo = leadInfoService.queryById(id);
+        if (leadInfoVo == null && leadInfoVo.getAssignedTo() != null) {
+            return R.fail("数据错误");
+        }
         leadInfoVo.setContactInfo(contactInfoService.queryById(leadInfoVo.getContactId()));
         return R.ok(leadInfoVo);
     }

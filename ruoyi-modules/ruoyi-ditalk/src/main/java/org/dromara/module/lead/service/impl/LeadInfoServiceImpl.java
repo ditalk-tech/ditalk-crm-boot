@@ -16,8 +16,8 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.module.lead.domain.LeadInfo;
 import org.dromara.module.lead.domain.bo.LeadInfoBo;
 import org.dromara.module.lead.domain.vo.LeadInfoVo;
-import org.dromara.module.lead.service.ILeadInfoService;
 import org.dromara.module.lead.mapper.LeadInfoMapper;
+import org.dromara.module.lead.service.ILeadInfoService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -108,6 +108,7 @@ public class LeadInfoServiceImpl implements ILeadInfoService {
         lqw.between(params.get("beginConvertedTime") != null && params.get("endConvertedTime") != null,
             LeadInfo::getConvertedTime, params.get("beginConvertedTime"), params.get("endConvertedTime"));
         lqw.isNull(LeadInfo::getConvertedTime); // 未转化的客户
+        lqw.isNull(params.get("isPublic") != null && (Boolean)params.get("isPublic"), LeadInfo::getAssignedTo); // 只查询未指派的客户，即公海客户
         return lqw;
     }
 
