@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import org.dromara.module.contact.service.IContactInfoService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -36,7 +35,6 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class LeadInfoController extends BaseController {
 
     private final ILeadInfoService leadInfoService;
-    private final IContactInfoService contactInfoService;
 
     /**
      * 查询线索信息列表
@@ -67,9 +65,7 @@ public class LeadInfoController extends BaseController {
     @GetMapping("/{id}")
     public R<LeadInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
-        LeadInfoVo leadInfoVo = leadInfoService.queryById(id);
-        leadInfoVo.setContactInfo(contactInfoService.queryById(leadInfoVo.getContactId()));
-        return R.ok(leadInfoVo);
+        return R.ok(leadInfoService.queryById(id));
     }
 
     /**
