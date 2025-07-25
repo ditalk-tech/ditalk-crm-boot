@@ -110,5 +110,4 @@ public class CustomerInfo extends TenantEntity {
      */
     private String leadState;
 
-
 }

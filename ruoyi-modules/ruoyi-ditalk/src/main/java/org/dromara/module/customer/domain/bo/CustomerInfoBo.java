@@ -108,5 +108,4 @@ public class CustomerInfoBo extends BaseEntity {
     @NotBlank(message = "线索状态不能为空", groups = { AddGroup.class, EditGroup.class })
     private String leadState;
 
-
 }
