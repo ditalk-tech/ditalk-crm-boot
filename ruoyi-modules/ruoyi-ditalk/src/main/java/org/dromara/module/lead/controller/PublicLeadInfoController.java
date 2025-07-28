@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.mybatis.helper.DataPermissionHelper;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.lead.domain.bo.LeadInfoBo;
@@ -39,7 +40,10 @@ public class PublicLeadInfoController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo<LeadInfoVo> list(LeadInfoBo bo, PageQuery pageQuery) {
         bo.getParams().put("isPublic", true); // 设置查询条件为公海客户
-        return leadInfoService.queryPageList(bo, pageQuery);
+        TableDataInfo<LeadInfoVo> tableDataInfo = DataPermissionHelper.ignore(() ->
+            leadInfoService.queryPageList(bo, pageQuery)
+        );
+        return tableDataInfo;
     }
 
     /**
@@ -51,11 +55,11 @@ public class PublicLeadInfoController extends BaseController {
     @GetMapping("/{id}")
     public R<LeadInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
-        LeadInfoVo leadInfoVo = leadInfoService.queryById(id);
+        LeadInfoVo leadInfoVo = DataPermissionHelper.ignore(() -> leadInfoService.queryById(id));
         if (leadInfoVo == null && leadInfoVo.getAssignedTo() != null) {
             return R.fail("数据不存在");
         }
-        leadInfoVo.setContactInfo(contactInfoService.queryById(leadInfoVo.getContactId()));
+        leadInfoVo.setContactInfo(DataPermissionHelper.ignore(() -> contactInfoService.queryById(leadInfoVo.getContactId())));
         return R.ok(leadInfoVo);
     }
 

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.module.contact.domain.vo.ContactInfoVo;
+import org.dromara.module.contact.service.IContactInfoService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -35,6 +37,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class CustomerActivityController extends BaseController {
 
     private final ICustomerActivityService customerActivityService;
+    private final IContactInfoService contactInfoService;
 
     /**
      * 查询客户活动记录列表
@@ -42,7 +45,14 @@ public class CustomerActivityController extends BaseController {
     @SaCheckPermission("customer:activity:list")
     @GetMapping("/list")
     public TableDataInfo<CustomerActivityVo> list(CustomerActivityBo bo, PageQuery pageQuery) {
-        return customerActivityService.queryPageList(bo, pageQuery);
+        TableDataInfo<CustomerActivityVo> tableDataInfo = customerActivityService.queryPageList(bo, pageQuery);
+        if (tableDataInfo.getRows() != null) {
+            tableDataInfo.getRows().forEach(row -> {
+                ContactInfoVo vo = contactInfoService.queryById(row.getContactId());
+                row.setContactName(vo.getLastName()+vo.getFirstName());
+            });
+        }
+        return tableDataInfo;
     }
 
     /**

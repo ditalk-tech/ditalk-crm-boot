@@ -41,6 +41,12 @@ public class CustomerActivityVo implements Serializable {
     private Date createTime;
 
     /**
+     * 创建人ID
+     */
+    @ExcelProperty(value = "创建人ID")
+    private Long createBy;
+
+    /**
      * 乐观锁
      */
     @ExcelProperty(value = "乐观锁")
@@ -57,6 +63,11 @@ public class CustomerActivityVo implements Serializable {
      */
     @ExcelProperty(value = "联系人ID")
     private Long contactId;
+
+    /**
+     * 联系人姓名
+     */
+    private String contactName;
 
     /**
      * 商机ID

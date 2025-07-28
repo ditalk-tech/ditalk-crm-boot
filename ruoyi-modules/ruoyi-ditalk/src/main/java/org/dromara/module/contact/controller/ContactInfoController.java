@@ -1,26 +1,29 @@
 package org.dromara.module.contact.controller;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.annotation.Validated;
-import org.dromara.common.idempotent.annotation.RepeatSubmit;
-import org.dromara.common.log.annotation.Log;
-import org.dromara.common.web.core.BaseController;
-import org.dromara.common.mybatis.core.page.PageQuery;
+import cn.hutool.core.bean.BeanUtil;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
-import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.module.contact.domain.vo.ContactInfoVo;
-import org.dromara.module.contact.domain.bo.ContactInfoBo;
-import org.dromara.module.contact.service.IContactInfoService;
+import org.dromara.common.idempotent.annotation.RepeatSubmit;
+import org.dromara.common.log.annotation.Log;
+import org.dromara.common.log.enums.BusinessType;
+import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.web.core.BaseController;
+import org.dromara.module.contact.domain.bo.ContactInfoBo;
+import org.dromara.module.contact.domain.vo.ContactInfoOptionVo;
+import org.dromara.module.contact.domain.vo.ContactInfoVo;
+import org.dromara.module.contact.service.IContactInfoService;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 联系人信息
@@ -101,5 +104,20 @@ public class ContactInfoController extends BaseController {
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
         return toAjax(contactInfoService.deleteWithValidByIds(List.of(ids), true));
+    }
+
+    /**
+     * 查询联系人信息选项列表
+     * @param customerId 客户ID
+     * @return 联系人信息选项列表
+     */
+    @SaCheckPermission("contact:info:list")
+    @GetMapping("/list/options/{customerId}")
+    public R<List<ContactInfoOptionVo>> listOptions(@NotNull(message = "主键不能为空")
+                                                  @PathVariable Long customerId) {
+        ContactInfoBo bo = new ContactInfoBo();
+        bo.setCustomerId(customerId);
+        List<ContactInfoVo> voList = contactInfoService.queryList(bo);
+        return R.ok(BeanUtil.copyToList(voList, ContactInfoOptionVo.class));
     }
 }
