@@ -86,4 +86,28 @@ public class MyCustomerInfoController extends BaseController {
         return toAjax(customerInfoHandler.editByBo(bo));
     }
 
+    /**
+     * 回收客户到公海
+     *
+     * @param id 主键
+     */
+    @SaCheckPermission("customer:my:reclaim")
+    @PutMapping("/reclaim/{id}")
+    public R<Void> reclaim(@NotNull(message = "主键不能为空")
+                           @PathVariable Long id) {
+        return toAjax(customerInfoHandler.reclaimById(id));
+    }
+
+    /**
+     * 单个客户转移到其他用户
+     */
+    @SaCheckPermission("customer:my:transfer")
+    @PutMapping("/transfer/{id}/{userId}")
+    public R<Void> transfer(@NotNull(message = "主键不能为空")
+                            @PathVariable Long id,
+                            @NotNull(message = "目标用户不能为空")
+                            @PathVariable Long userId) {
+        return toAjax(customerInfoHandler.transfer(id, userId));
+    }
+
 }
