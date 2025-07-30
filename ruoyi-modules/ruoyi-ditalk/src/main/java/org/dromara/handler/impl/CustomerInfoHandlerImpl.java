@@ -78,11 +78,11 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
 
     @Override
     @DSTransactional
-    public Boolean reclaimById(Long id) {
+    public Boolean reclaimById(Long customerId) {
         // 回收客户到公海
-        CustomerInfoVo customerInfoVo = customerInfoService.queryById(id); // !!! 这里校验数据权限，同时获取版本号
+        CustomerInfoVo customerInfoVo = customerInfoService.queryById(customerId); // !!! 这里校验数据权限，同时获取版本号
         if (customerInfoVo == null || customerInfoVo.getAssignedTo() == null) {
-            throw new UserException("客户信息不存在或已是公海客户");
+            throw new UserException("客户不存在或已是公海客户");
         }
         // 设置客户的 归属用户 与 归属部门 为空
         LambdaUpdateWrapper wrapper = new LambdaUpdateWrapper<CustomerInfo>()
@@ -91,7 +91,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             .set(CustomerInfo::getVersion, customerInfoVo.getVersion() + 1)
             .set(CustomerInfo::getUpdateBy, LoginHelper.getUserId())
             .set(CustomerInfo::getUpdateTime, new Date())
-            .eq(CustomerInfo::getId, id)
+            .eq(CustomerInfo::getId, customerId)
             .eq(CustomerInfo::getVersion, customerInfoVo.getVersion());
         Boolean flag = customerInfoMapper.update(null, wrapper) > 0;
         if (!flag) {
@@ -99,7 +99,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         }
         // 回收客户的联系人
         ContactInfoBo contactInfoBo = new ContactInfoBo();
-        contactInfoBo.setCustomerId(id);
+        contactInfoBo.setCustomerId(customerId);
         List<ContactInfoVo> voList = DataPermissionHelper.ignore(() -> contactInfoService.queryList(contactInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
         if (ArrayUtil.isNotEmpty(voList.isEmpty())) {
             voList.forEach(vo -> {

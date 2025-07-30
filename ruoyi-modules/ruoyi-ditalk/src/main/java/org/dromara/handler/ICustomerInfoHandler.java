@@ -1,6 +1,5 @@
 package org.dromara.handler;
 
-import jakarta.validation.constraints.NotNull;
 import org.dromara.app.domain.bo.CustomerContactBo;
 
 /**
@@ -17,15 +16,17 @@ public interface ICustomerInfoHandler {
     /**
      * 通过ID回收客户到公海
      *
-     * @param id 主键
+     * @param customerId 主键
+     * @return 是否回收成功
      */
-    Boolean reclaimById(Long id);
+    Boolean reclaimById(Long customerId);
 
     /**
      * 转移客户到指定用户
+     *
      * @param customerId
      * @param userId
-     * @return
+     * @return 是否转移成功
      */
     Boolean transfer(Long customerId, Long userId);
 }

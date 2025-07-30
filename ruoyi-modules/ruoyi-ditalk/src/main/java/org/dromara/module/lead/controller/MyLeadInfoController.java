@@ -86,4 +86,28 @@ public class MyLeadInfoController extends BaseController {
         return toAjax(leadInfoHandler.editByBo(bo));
     }
 
+    /**
+     * 回收线索到线索池
+     *
+     * @param leadId 主键
+     */
+    @SaCheckPermission("lead:my:reclaim")
+    @PutMapping("/reclaim/{leadId}")
+    public R<Void> reclaim(@NotNull(message = "线索不能为空")
+                           @PathVariable Long leadId) {
+        return toAjax(leadInfoHandler.reclaimById(leadId));
+    }
+
+    /**
+     * 单个线索转移到其他用户
+     */
+    @SaCheckPermission("lead:my:transfer")
+    @PutMapping("/transfer/{leadId}/{userId}")
+    public R<Void> transfer(@NotNull(message = "线索不能为空")
+                            @PathVariable Long leadId,
+                            @NotNull(message = "目标用户不能为空")
+                            @PathVariable Long userId) {
+        return toAjax(leadInfoHandler.transfer(leadId, userId));
+    }
+
 }
