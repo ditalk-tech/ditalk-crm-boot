@@ -109,7 +109,7 @@ public class CustomerInfoServiceImpl implements ICustomerInfoService {
         lqw.eq(StringUtils.isNotBlank(bo.getLeadState()), CustomerInfo::getLeadState, bo.getLeadState());
         lqw.between(params.get("beginConvertedTime") != null && params.get("endConvertedTime") != null,
             CustomerInfo::getConvertedTime, params.get("beginConvertedTime"), params.get("endConvertedTime"));
-        lqw.isNotNull(CustomerInfo::getConvertedTime); // 已转化的客户
+        lqw.isNotNull(CustomerInfo::getConvertedTime); // !!! 已转化的客户，与 lead 的关键区别
         lqw.isNull(params.get("isPublic") != null && (Boolean)params.get("isPublic"), CustomerInfo::getAssignedTo); // 只查询未指派的客户，即公海客户
         return lqw;
     }

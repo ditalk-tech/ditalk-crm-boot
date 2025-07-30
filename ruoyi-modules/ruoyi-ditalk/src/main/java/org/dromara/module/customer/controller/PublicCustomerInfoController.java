@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.mybatis.helper.DataPermissionHelper;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.customer.domain.bo.CustomerInfoBo;
@@ -39,7 +40,8 @@ public class PublicCustomerInfoController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo<CustomerInfoVo> list(CustomerInfoBo bo, PageQuery pageQuery) {
         bo.getParams().put("isPublic", true); // 设置查询条件为公海客户
-        return customerInfoService.queryPageList(bo, pageQuery);
+        TableDataInfo<CustomerInfoVo> tableDataInfo = DataPermissionHelper.ignore(() -> customerInfoService.queryPageList(bo, pageQuery));
+        return tableDataInfo;
     }
 
     /**
@@ -50,12 +52,12 @@ public class PublicCustomerInfoController extends BaseController {
     @SaCheckPermission("customer:public:query")
     @GetMapping("/{id}")
     public R<CustomerInfoVo> getInfo(@NotNull(message = "主键不能为空")
-                                               @PathVariable Long id) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryById(id);
+                                     @PathVariable Long id) {
+        CustomerInfoVo customerInfoVo = DataPermissionHelper.ignore(() -> customerInfoService.queryById(id));
         if (customerInfoVo == null && customerInfoVo.getAssignedTo() != null) { // 检查是否为公海客户
             return R.fail("数据不存在");
         }
-        customerInfoVo.setContactInfo(contactInfoService.queryById(customerInfoVo.getContactId()));
+        customerInfoVo.setContactInfo(DataPermissionHelper.ignore(() -> contactInfoService.queryById(customerInfoVo.getContactId())));
         return R.ok(customerInfoVo);
     }
 
