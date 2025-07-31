@@ -22,6 +22,8 @@ import org.dromara.module.lead.service.ILeadInfoService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 我的线索信息
  *
@@ -89,25 +91,25 @@ public class MyLeadInfoController extends BaseController {
     /**
      * 回收线索到线索池
      *
-     * @param leadId 主键
+     * @param leadIds 主键
      */
     @SaCheckPermission("lead:my:reclaim")
-    @PutMapping("/reclaim/{leadId}")
+    @PutMapping("/reclaim/{leadIds}")
     public R<Void> reclaim(@NotNull(message = "线索不能为空")
-                           @PathVariable Long leadId) {
-        return toAjax(leadInfoHandler.reclaimById(leadId));
+                           @PathVariable  Long[] leadIds) {
+        return toAjax(leadInfoHandler.reclaimById(List.of(leadIds)));
     }
 
     /**
-     * 单个线索转移到其他用户
+     * 单个或批量转移线索到指定用户
      */
     @SaCheckPermission("lead:my:transfer")
-    @PutMapping("/transfer/{leadId}/{userId}")
+    @PutMapping("/transfer/{leadIds}/{userId}")
     public R<Void> transfer(@NotNull(message = "线索不能为空")
-                            @PathVariable Long leadId,
+                            @PathVariable Long[] leadIds,
                             @NotNull(message = "目标用户不能为空")
                             @PathVariable Long userId) {
-        return toAjax(leadInfoHandler.transfer(leadId, userId));
+        return toAjax(leadInfoHandler.transfer(List.of(leadIds), userId));
     }
 
 }

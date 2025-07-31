@@ -2,6 +2,8 @@ package org.dromara.handler;
 
 import org.dromara.app.domain.bo.LeadContactBo;
 
+import java.util.List;
+
 /**
  * 客户线索信息应用接口
  *
@@ -17,17 +19,17 @@ public interface ILeadInfoHandler {
     /**
      * 通过ID回收线索到公海
      *
-     * @param leadId 主键
+     * @param leadIds 主键
      * @return 是否回收成功
      */
-    Boolean reclaimById(Long leadId);
+    Boolean reclaimById(List<Long> leadIds);
 
     /**
      * 转移线索到指定用户
      *
-     * @param leadId
+     * @param leadIds
      * @param userId
      * @return 是否转移成功
      */
-    Boolean transfer(Long leadId, Long userId);
+    Boolean transfer(List<Long> leadIds, Long userId);
 }

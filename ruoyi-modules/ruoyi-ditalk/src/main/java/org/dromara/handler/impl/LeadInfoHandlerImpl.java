@@ -75,94 +75,103 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
         return true;
     }
 
-
     @Override
     @DSTransactional
-    public Boolean reclaimById(Long leadId) {
-        // 回收客户到公海
-        LeadInfoVo leadInfoVo = leadInfoService.queryById(leadId); // !!! 这里校验数据权限，同时获取版本号
-        if (leadInfoVo == null || leadInfoVo.getAssignedTo() == null) {
-            throw new UserException("线索不存在或已在线索池中");
+    public Boolean reclaimById(List<Long> leadIds) {
+        if (ArrayUtil.isEmpty(leadIds)) {
+            throw new UserException("回收的线索不能为空");
         }
-        // 设置客户的 归属用户 与 归属部门 为空
-        LambdaUpdateWrapper wrapper = new LambdaUpdateWrapper<LeadInfo>()
-            .set(LeadInfo::getAssignedTo, null)
-            .set(LeadInfo::getAssignedDept, null)
-            .set(LeadInfo::getVersion, leadInfoVo.getVersion() + 1)
-            .set(LeadInfo::getUpdateBy, LoginHelper.getUserId())
-            .set(LeadInfo::getUpdateTime, new Date())
-            .eq(LeadInfo::getId, leadId)
-            .eq(LeadInfo::getVersion, leadInfoVo.getVersion());
-        Boolean flag = leadInfoMapper.update(null, wrapper) > 0;
-        if (!flag) {
-            throw new UserException("回收线索信息失败");
-        }
-        // 回收线索的联系人
-        ContactInfoBo contactInfoBo = new ContactInfoBo();
-        contactInfoBo.setCustomerId(leadId);
-        List<ContactInfoVo> voList = DataPermissionHelper.ignore(() -> contactInfoService.queryList(contactInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有线索权限就有权回收对应联系人
-        if (ArrayUtil.isNotEmpty(voList.isEmpty())) {
-            voList.forEach(vo -> {
-                // 设置联系人信息的 归属用户 与 归属部门 为空
-                LambdaUpdateWrapper wrapperContact = new LambdaUpdateWrapper<ContactInfo>()
-                    .set(ContactInfo::getAssignedTo, null)
-                    .set(ContactInfo::getAssignedDept, null)
-                    .set(ContactInfo::getVersion, vo.getVersion() + 1)
-                    .set(ContactInfo::getUpdateBy, LoginHelper.getUserId())
-                    .set(ContactInfo::getUpdateTime, new Date())
-                    .eq(ContactInfo::getId, vo.getId())
-                    .eq(ContactInfo::getVersion, vo.getVersion());
-                Boolean contactFlag = contactInfoMapper.update(null, wrapperContact) > 0;
-                if (!contactFlag) {
-                    throw new UserException("回收联系人信息失败");
-                }
-            });
+        for (Long leadId : leadIds) {
+            // 回收客户到公海
+            LeadInfoVo leadInfoVo = leadInfoService.queryById(leadId); // !!! 这里校验数据权限，同时获取版本号
+            if (leadInfoVo == null || leadInfoVo.getAssignedTo() == null) {
+                throw new UserException("线索不存在或已在线索池中");
+            }
+            // 设置客户的 归属用户 与 归属部门 为空
+            LambdaUpdateWrapper wrapper = new LambdaUpdateWrapper<LeadInfo>()
+                .set(LeadInfo::getAssignedTo, null)
+                .set(LeadInfo::getAssignedDept, null)
+                .set(LeadInfo::getVersion, leadInfoVo.getVersion() + 1)
+                .set(LeadInfo::getUpdateBy, LoginHelper.getUserId())
+                .set(LeadInfo::getUpdateTime, new Date())
+                .eq(LeadInfo::getId, leadId)
+                .eq(LeadInfo::getVersion, leadInfoVo.getVersion());
+            Boolean flag = leadInfoMapper.update(null, wrapper) > 0;
+            if (!flag) {
+                throw new UserException("回收线索信息失败");
+            }
+            // 回收线索的联系人
+            ContactInfoBo contactInfoBo = new ContactInfoBo();
+            contactInfoBo.setCustomerId(leadId);
+            List<ContactInfoVo> voList = DataPermissionHelper.ignore(() -> contactInfoService.queryList(contactInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有线索权限就有权回收对应联系人
+            if (ArrayUtil.isNotEmpty(voList.isEmpty())) {
+                voList.forEach(vo -> {
+                    // 设置联系人信息的 归属用户 与 归属部门 为空
+                    LambdaUpdateWrapper wrapperContact = new LambdaUpdateWrapper<ContactInfo>()
+                        .set(ContactInfo::getAssignedTo, null)
+                        .set(ContactInfo::getAssignedDept, null)
+                        .set(ContactInfo::getVersion, vo.getVersion() + 1)
+                        .set(ContactInfo::getUpdateBy, LoginHelper.getUserId())
+                        .set(ContactInfo::getUpdateTime, new Date())
+                        .eq(ContactInfo::getId, vo.getId())
+                        .eq(ContactInfo::getVersion, vo.getVersion());
+                    Boolean contactFlag = contactInfoMapper.update(null, wrapperContact) > 0;
+                    if (!contactFlag) {
+                        throw new UserException("回收联系人信息失败");
+                    }
+                });
+            }
         }
         return true;
     }
 
     @Override
     @DSTransactional
-    public Boolean transfer(Long leadId, Long userId) {
-        SysUserVo sysUserVo = sysUserService.selectUserById(userId);
-        if (sysUserVo == null) {
-            throw new UserException("目标用户不存在");
+    public Boolean transfer(List<Long> leadIds, Long userId) {
+        if (ArrayUtil.isEmpty(leadIds)) {
+            throw new UserException("转移的线索不能为空");
         }
-        // 转移线索
-        LeadInfoVo leadInfoVo = leadInfoService.queryById(leadId); // !!! 这里校验数据权限，同时获取版本号
-        if (leadInfoVo == null) {
-            throw new UserException("线索信息不存在");
-        }
-        // 设置线索的 归属用户 与 归属部门
-        LeadInfoBo leadInfoBo = new LeadInfoBo();
-        leadInfoBo.setId(leadId);
-        leadInfoBo.setAssignedTo(userId);
-        leadInfoBo.setAssignedDept(sysUserVo.getDeptId());
-        leadInfoBo.setVersion(leadInfoVo.getVersion());
-        Boolean flag = leadInfoService.updateByBo(leadInfoBo);
-        if (!flag) {
-            throw new UserException("转移线索信息失败");
-        }
-        // 转移线索的联系人
-        ContactInfoBo contactInfoBo = new ContactInfoBo();
-        contactInfoBo.setCustomerId(leadId);
-        DataPermissionHelper.ignore(() -> {  // !!! 这里忽略数据权限校验，因为是回收操作，有线索权限就有权回收对应联系人
-            List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
-            if (ArrayUtil.isNotEmpty(voList)) {
-                voList.forEach(vo -> {
-                    // 设置联系人信息的 归属用户 与 归属部门
-                    ContactInfoBo contactBo = new ContactInfoBo();
-                    contactBo.setId(vo.getId());
-                    contactBo.setAssignedTo(userId);
-                    contactBo.setAssignedDept(sysUserVo.getDeptId());
-                    contactBo.setVersion(vo.getVersion());
-                    Boolean contactFlag = contactInfoService.updateByBo(contactBo);
-                    if (!contactFlag) {
-                        throw new UserException("转移联系人信息失败");
-                    }
-                });
+        for (Long leadId : leadIds) {
+            SysUserVo sysUserVo = sysUserService.selectUserById(userId);
+            if (sysUserVo == null) {
+                throw new UserException("目标用户不存在");
             }
-        });
+            // 转移线索
+            LeadInfoVo leadInfoVo = leadInfoService.queryById(leadId); // !!! 这里校验数据权限，同时获取版本号
+            if (leadInfoVo == null) {
+                throw new UserException("线索信息不存在");
+            }
+            // 设置线索的 归属用户 与 归属部门
+            LeadInfoBo leadInfoBo = new LeadInfoBo();
+            leadInfoBo.setId(leadId);
+            leadInfoBo.setAssignedTo(userId);
+            leadInfoBo.setAssignedDept(sysUserVo.getDeptId());
+            leadInfoBo.setVersion(leadInfoVo.getVersion());
+            Boolean flag = leadInfoService.updateByBo(leadInfoBo);
+            if (!flag) {
+                throw new UserException("转移线索信息失败");
+            }
+            // 转移线索的联系人
+            ContactInfoBo contactInfoBo = new ContactInfoBo();
+            contactInfoBo.setCustomerId(leadId);
+            DataPermissionHelper.ignore(() -> {  // !!! 这里忽略数据权限校验，因为是回收操作，有线索权限就有权回收对应联系人
+                List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
+                if (ArrayUtil.isNotEmpty(voList)) {
+                    voList.forEach(vo -> {
+                        // 设置联系人信息的 归属用户 与 归属部门
+                        ContactInfoBo contactBo = new ContactInfoBo();
+                        contactBo.setId(vo.getId());
+                        contactBo.setAssignedTo(userId);
+                        contactBo.setAssignedDept(sysUserVo.getDeptId());
+                        contactBo.setVersion(vo.getVersion());
+                        Boolean contactFlag = contactInfoService.updateByBo(contactBo);
+                        if (!contactFlag) {
+                            throw new UserException("转移联系人信息失败");
+                        }
+                    });
+                }
+            });
+        }
         return true;
     }
 }
