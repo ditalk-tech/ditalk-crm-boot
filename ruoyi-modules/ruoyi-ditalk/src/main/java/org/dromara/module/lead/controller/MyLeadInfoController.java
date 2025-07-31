@@ -57,7 +57,7 @@ public class MyLeadInfoController extends BaseController {
     @SaCheckPermission("lead:my:query")
     @GetMapping("/{id}")
     public R<LeadInfoVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long id) {
+                                 @PathVariable Long id) {
         LeadInfoVo leadInfoVo = leadInfoService.queryById(id);
         if (leadInfoVo == null) {
             return R.fail("数据错误");
@@ -96,7 +96,7 @@ public class MyLeadInfoController extends BaseController {
     @SaCheckPermission("lead:my:reclaim")
     @PutMapping("/reclaim/{leadIds}")
     public R<Void> reclaim(@NotNull(message = "线索不能为空")
-                           @PathVariable  Long[] leadIds) {
+                           @PathVariable Long[] leadIds) {
         return toAjax(leadInfoHandler.reclaimById(List.of(leadIds)));
     }
 
@@ -112,4 +112,25 @@ public class MyLeadInfoController extends BaseController {
         return toAjax(leadInfoHandler.transfer(List.of(leadIds), userId));
     }
 
+    /**
+     * 回收用户所有线索到线索池
+     */
+    @SaCheckPermission("lead:my:reclaim")
+    @PutMapping("/reclaim/user/{userId}")
+    public R<Void> reclaimUserLead(@NotNull(message = "用户不能为空")
+                               @PathVariable Long userId) {
+        return toAjax(leadInfoHandler.reclaimUserLead(userId));
+    }
+
+    /**
+     * 转移指定用户的线索到另一个用户
+     */
+    @SaCheckPermission("lead:my:transfer")
+    @PutMapping("/transfer/user/{sourceUserId}/{targetUserId}")
+    public R<Void> transferUserLead(@NotNull(message = "源用户不能为空")
+                                @PathVariable Long sourceUserId,
+                                @NotNull(message = "目标用户不能为空")
+                                @PathVariable Long targetUserId) {
+        return toAjax(leadInfoHandler.transferUserLead(sourceUserId, targetUserId));
+    }
 }

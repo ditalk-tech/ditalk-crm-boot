@@ -32,4 +32,21 @@ public interface ILeadInfoHandler {
      * @return 是否转移成功
      */
     Boolean transfer(List<Long> leadIds, Long userId);
+
+    /**
+     * 回收指定用户的所有线索到公海
+     *
+     * @param userId 用户ID
+     * @return 是否回收成功
+     */
+    Boolean reclaimUserLead(Long userId);
+
+    /**
+     * 转移指定用户的线索到另一个用户
+     *
+     * @param sourceUserId 源用户ID
+     * @param targetUserId 目标用户ID
+     * @return 是否转移成功
+     */
+    Boolean transferUserLead(Long sourceUserId, Long targetUserId);
 }

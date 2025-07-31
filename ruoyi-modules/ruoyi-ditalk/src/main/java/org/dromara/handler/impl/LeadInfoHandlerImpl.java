@@ -174,4 +174,38 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
         }
         return true;
     }
+
+    @Override
+    @DSTransactional
+    public Boolean reclaimUserLead(Long userId) {
+        if (userId == null) {
+            throw new UserException("用户不能为空");
+        }
+        LeadInfoBo leadInfoBo = new LeadInfoBo();
+        leadInfoBo.setAssignedTo(userId);
+        List<LeadInfoVo> leadInfoVoList = leadInfoService.queryList(leadInfoBo);
+        if (ArrayUtil.isEmpty(leadInfoVoList)) {
+            return true; // 没有线索可回收
+        } else {
+            List<Long> leadIds = leadInfoVoList.stream().map(LeadInfoVo::getId).toList();
+            return reclaimById(leadIds);
+        }
+    }
+
+    @Override
+    @DSTransactional
+    public Boolean transferUserLead(Long sourceUserId, Long targetUserId) {
+        if (sourceUserId == null) {
+            throw new UserException("用户不能为空");
+        }
+        LeadInfoBo leadInfoBo = new LeadInfoBo();
+        leadInfoBo.setAssignedTo(sourceUserId);
+        List<LeadInfoVo> leadInfoVoList = leadInfoService.queryList(leadInfoBo);
+        if (ArrayUtil.isEmpty(leadInfoVoList)) {
+            return true; // 没有线索可回收
+        } else {
+            List<Long> leadIds = leadInfoVoList.stream().map(LeadInfoVo::getId).toList();
+            return transfer(leadIds, targetUserId);
+        }
+    }
 }
