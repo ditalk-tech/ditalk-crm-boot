@@ -16,6 +16,7 @@ import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.web.core.BaseController;
+import org.dromara.handler.IContactInfoHandler;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
 import org.dromara.module.contact.domain.vo.ContactInfoOptionVo;
 import org.dromara.module.contact.domain.vo.ContactInfoVo;
@@ -38,6 +39,7 @@ import java.util.List;
 public class ContactInfoController extends BaseController {
 
     private final IContactInfoService contactInfoService;
+    private final IContactInfoHandler contactInfoHandler;
 
     /**
      * 查询联系人信息列表
@@ -79,7 +81,7 @@ public class ContactInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody ContactInfoBo bo) {
-        return toAjax(contactInfoService.insertByBo(bo));
+        return toAjax(contactInfoHandler.add(bo));
     }
 
     /**

@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.app.domain.bo.CustomerContactBo;
+import org.dromara.common.constant.CacheNames;
 import org.dromara.common.core.exception.user.UserException;
 import org.dromara.common.mybatis.helper.DataPermissionHelper;
+import org.dromara.common.redis.utils.CacheUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.handler.ICustomerInfoHandler;
 import org.dromara.module.contact.domain.ContactInfo;
@@ -84,6 +86,8 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         if (customerInfoVo == null || customerInfoVo.getAssignedTo() == null) {
             throw new UserException("客户不存在或已是公海客户");
         }
+        CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
+        CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
         // 设置客户的 归属用户 与 归属部门 为空
         LambdaUpdateWrapper wrapper = new LambdaUpdateWrapper<CustomerInfo>()
             .set(CustomerInfo::getAssignedTo, null)
@@ -103,6 +107,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         List<ContactInfoVo> voList = DataPermissionHelper.ignore(() -> contactInfoService.queryList(contactInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
         if (ArrayUtil.isNotEmpty(voList.isEmpty())) {
             voList.forEach(vo -> {
+                CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除缓存
                 // 设置联系人信息的 归属用户 与 归属部门 为空
                 LambdaUpdateWrapper wrapperContact = new LambdaUpdateWrapper<ContactInfo>()
                     .set(ContactInfo::getAssignedTo, null)
@@ -133,6 +138,8 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         if (customerInfoVo == null) {
             throw new UserException("客户信息不存在");
         }
+        CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
+        CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
         // 设置客户的 归属用户 与 归属部门
         CustomerInfoBo customerInfoBo = new CustomerInfoBo();
         customerInfoBo.setId(customerId);
@@ -150,6 +157,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
             if (ArrayUtil.isNotEmpty(voList)) {
                 voList.forEach(vo -> {
+                    CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除缓存
                     // 设置联系人信息的 归属用户 与 归属部门
                     ContactInfoBo contactBo = new ContactInfoBo();
                     contactBo.setId(vo.getId());

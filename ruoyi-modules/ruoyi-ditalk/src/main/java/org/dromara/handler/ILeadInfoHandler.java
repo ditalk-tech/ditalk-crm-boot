@@ -1,5 +1,6 @@
 package org.dromara.handler;
 
+import jakarta.validation.constraints.NotNull;
 import org.dromara.app.domain.bo.LeadContactBo;
 
 import java.util.List;
@@ -49,4 +50,13 @@ public interface ILeadInfoHandler {
      * @return 是否转移成功
      */
     Boolean transferUserLead(Long sourceUserId, Long targetUserId);
+
+    /**
+     * 认领线索到指定用户
+     *
+     * @param userId 用户ID
+     * @param leadIds 线索ID列表
+     * @return 是否认领成功
+     */
+    Boolean claim(Long userId, List<Long> leadIds);
 }
