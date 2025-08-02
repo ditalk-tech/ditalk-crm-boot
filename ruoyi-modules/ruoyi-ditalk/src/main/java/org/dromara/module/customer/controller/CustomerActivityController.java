@@ -49,7 +49,9 @@ public class CustomerActivityController extends BaseController {
         if (tableDataInfo.getRows() != null) {
             tableDataInfo.getRows().forEach(row -> {
                 ContactInfoVo vo = contactInfoService.queryById(row.getContactId());
-                row.setContactName(vo.getLastName()+vo.getFirstName());
+                if (vo != null) {
+                    row.setContactName(vo.getLastName()+vo.getFirstName());
+                }
             });
         }
         return tableDataInfo;
