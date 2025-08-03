@@ -1,6 +1,5 @@
 package org.dromara.handler;
 
-import jakarta.validation.constraints.NotNull;
 import org.dromara.app.domain.bo.LeadContactBo;
 
 import java.util.List;

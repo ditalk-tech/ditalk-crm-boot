@@ -80,46 +80,104 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
 
     @Override
     @DSTransactional
-    public Boolean reclaimById(Long customerId) {
-        // 回收客户到公海
-        CustomerInfoVo customerInfoVo = customerInfoService.queryById(customerId); // !!! 这里校验数据权限，同时获取版本号
-        if (customerInfoVo == null || customerInfoVo.getAssignedTo() == null) {
-            throw new UserException("客户不存在或已是公海客户");
+    public Boolean reclaimById(List<Long> customerIds) {
+        if (ArrayUtil.isEmpty(customerIds)) {
+            throw new UserException("回收的客户不能为空");
         }
-        CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
-        CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
-        // 设置客户的 归属用户 与 归属部门 为空
-        LambdaUpdateWrapper wrapper = new LambdaUpdateWrapper<CustomerInfo>()
-            .set(CustomerInfo::getAssignedTo, null)
-            .set(CustomerInfo::getAssignedDept, null)
-            .set(CustomerInfo::getVersion, customerInfoVo.getVersion() + 1)
-            .set(CustomerInfo::getUpdateBy, LoginHelper.getUserId())
-            .set(CustomerInfo::getUpdateTime, new Date())
-            .eq(CustomerInfo::getId, customerId)
-            .eq(CustomerInfo::getVersion, customerInfoVo.getVersion());
-        Boolean flag = customerInfoMapper.update(null, wrapper) > 0;
-        if (!flag) {
-            throw new UserException("回收客户信息失败");
+        for (Long customerId : customerIds) {
+            // 回收客户到公海
+            CustomerInfoVo customerInfoVo = customerInfoService.queryById(customerId); // !!! 这里校验数据权限，同时获取版本号
+            if (customerInfoVo == null || customerInfoVo.getAssignedTo() == null) {
+                throw new UserException("客户不存在或已在客户公海中");
+            }
+            CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
+            CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
+            // 设置客户的 归属用户 与 归属部门 为空
+            LambdaUpdateWrapper wrapper = new LambdaUpdateWrapper<CustomerInfo>()
+                .set(CustomerInfo::getAssignedTo, null)
+                .set(CustomerInfo::getAssignedDept, null)
+                .set(CustomerInfo::getVersion, customerInfoVo.getVersion() + 1)
+                .set(CustomerInfo::getUpdateBy, LoginHelper.getUserId())
+                .set(CustomerInfo::getUpdateTime, new Date())
+                .eq(CustomerInfo::getId, customerId)
+                .eq(CustomerInfo::getVersion, customerInfoVo.getVersion());
+            Boolean flag = customerInfoMapper.update(null, wrapper) > 0;
+            if (!flag) {
+                throw new UserException("回收客户信息失败");
+            }
+            // 回收客户的联系人
+            ContactInfoBo contactInfoBo = new ContactInfoBo();
+            contactInfoBo.setCustomerId(customerId);
+            List<ContactInfoVo> voList = DataPermissionHelper.ignore(() -> contactInfoService.queryList(contactInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
+            if (ArrayUtil.isNotEmpty(voList.isEmpty())) {
+                voList.forEach(vo -> {
+                    CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
+                    // 设置联系人信息的 归属用户 与 归属部门 为空
+                    LambdaUpdateWrapper wrapperContact = new LambdaUpdateWrapper<ContactInfo>()
+                        .set(ContactInfo::getAssignedTo, null)
+                        .set(ContactInfo::getAssignedDept, null)
+                        .set(ContactInfo::getVersion, vo.getVersion() + 1)
+                        .set(ContactInfo::getUpdateBy, LoginHelper.getUserId())
+                        .set(ContactInfo::getUpdateTime, new Date())
+                        .eq(ContactInfo::getId, vo.getId())
+                        .eq(ContactInfo::getVersion, vo.getVersion());
+                    Boolean contactFlag = contactInfoMapper.update(null, wrapperContact) > 0;
+                    if (!contactFlag) {
+                        throw new UserException("回收联系人信息失败");
+                    }
+                });
+            }
         }
-        // 回收客户的联系人
-        ContactInfoBo contactInfoBo = new ContactInfoBo();
-        contactInfoBo.setCustomerId(customerId);
-        List<ContactInfoVo> voList = DataPermissionHelper.ignore(() -> contactInfoService.queryList(contactInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
-        if (ArrayUtil.isNotEmpty(voList.isEmpty())) {
-            voList.forEach(vo -> {
-                CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除缓存
-                // 设置联系人信息的 归属用户 与 归属部门 为空
-                LambdaUpdateWrapper wrapperContact = new LambdaUpdateWrapper<ContactInfo>()
-                    .set(ContactInfo::getAssignedTo, null)
-                    .set(ContactInfo::getAssignedDept, null)
-                    .set(ContactInfo::getVersion, vo.getVersion() + 1)
-                    .set(ContactInfo::getUpdateBy, LoginHelper.getUserId())
-                    .set(ContactInfo::getUpdateTime, new Date())
-                    .eq(ContactInfo::getId, vo.getId())
-                    .eq(ContactInfo::getVersion, vo.getVersion());
-                Boolean contactFlag = contactInfoMapper.update(null, wrapperContact) > 0;
-                if (!contactFlag) {
-                    throw new UserException("回收联系人信息失败");
+        return true;
+    }
+
+    @Override
+    @DSTransactional
+    public Boolean transfer(List<Long> customerIds, Long userId) {
+        if (ArrayUtil.isEmpty(customerIds)) {
+            throw new UserException("转移的客户不能为空");
+        }
+        for (Long customerId : customerIds) {
+            SysUserVo sysUserVo = sysUserService.selectUserById(userId);
+            if (sysUserVo == null) {
+                throw new UserException("目标用户不存在");
+            }
+            // 转移客户
+            CustomerInfoVo customerInfoVo = customerInfoService.queryById(customerId); // !!! 这里校验数据权限，同时获取版本号
+            if (customerInfoVo == null) {
+                throw new UserException("客户信息不存在");
+            }
+            CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
+            CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
+            // 设置客户的 归属用户 与 归属部门
+            CustomerInfoBo customerInfoBo = new CustomerInfoBo();
+            customerInfoBo.setId(customerId);
+            customerInfoBo.setAssignedTo(userId);
+            customerInfoBo.setAssignedDept(sysUserVo.getDeptId());
+            customerInfoBo.setVersion(customerInfoVo.getVersion());
+            Boolean flag = customerInfoService.updateByBo(customerInfoBo);
+            if (!flag) {
+                throw new UserException("转移客户信息失败");
+            }
+            // 转移客户的联系人
+            ContactInfoBo contactInfoBo = new ContactInfoBo();
+            contactInfoBo.setCustomerId(customerId);
+            DataPermissionHelper.ignore(() -> {  // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
+                List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
+                if (ArrayUtil.isNotEmpty(voList)) {
+                    voList.forEach(vo -> {
+                        CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
+                        // 设置联系人信息的 归属用户 与 归属部门
+                        ContactInfoBo contactBo = new ContactInfoBo();
+                        contactBo.setId(vo.getId());
+                        contactBo.setAssignedTo(userId);
+                        contactBo.setAssignedDept(sysUserVo.getDeptId());
+                        contactBo.setVersion(vo.getVersion());
+                        Boolean contactFlag = contactInfoService.updateByBo(contactBo);
+                        if (!contactFlag) {
+                            throw new UserException("转移联系人信息失败");
+                        }
+                    });
                 }
             });
         }
@@ -128,50 +186,93 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
 
     @Override
     @DSTransactional
-    public Boolean transfer(Long customerId, Long userId) {
-        SysUserVo sysUserVo = sysUserService.selectUserById(userId);
-        if (sysUserVo == null) {
-            throw new UserException("目标用户不存在");
+    public Boolean reclaimUserCustomer(Long userId) {
+        if (userId == null) {
+            throw new UserException("用户不能为空");
         }
-        // 转移客户
-        CustomerInfoVo customerInfoVo = customerInfoService.queryById(customerId); // !!! 这里校验数据权限，同时获取版本号
-        if (customerInfoVo == null) {
-            throw new UserException("客户信息不存在");
-        }
-        CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
-        CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
-        // 设置客户的 归属用户 与 归属部门
         CustomerInfoBo customerInfoBo = new CustomerInfoBo();
-        customerInfoBo.setId(customerId);
         customerInfoBo.setAssignedTo(userId);
-        customerInfoBo.setAssignedDept(sysUserVo.getDeptId());
-        customerInfoBo.setVersion(customerInfoVo.getVersion());
-        Boolean flag = customerInfoService.updateByBo(customerInfoBo);
-        if (!flag) {
-            throw new UserException("转移客户信息失败");
+        List<CustomerInfoVo> customerInfoVoList = customerInfoService.queryList(customerInfoBo);
+        if (ArrayUtil.isEmpty(customerInfoVoList)) {
+            return true; // 没有客户可回收
+        } else {
+            List<Long> customerIds = customerInfoVoList.stream().map(CustomerInfoVo::getId).toList();
+            return reclaimById(customerIds);
         }
-        // 转移客户的联系人
-        ContactInfoBo contactInfoBo = new ContactInfoBo();
-        contactInfoBo.setCustomerId(customerId);
-        DataPermissionHelper.ignore(() -> {  // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
-            List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
-            if (ArrayUtil.isNotEmpty(voList)) {
-                voList.forEach(vo -> {
-                    CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除缓存
-                    // 设置联系人信息的 归属用户 与 归属部门
-                    ContactInfoBo contactBo = new ContactInfoBo();
-                    contactBo.setId(vo.getId());
-                    contactBo.setAssignedTo(userId);
-                    contactBo.setAssignedDept(sysUserVo.getDeptId());
-                    contactBo.setVersion(vo.getVersion());
-                    Boolean contactFlag = contactInfoService.updateByBo(contactBo);
-                    if (!contactFlag) {
-                        throw new UserException("转移联系人信息失败");
-                    }
-                });
-            }
-        });
-        return true;
     }
 
+    @Override
+    @DSTransactional
+    public Boolean transferUserCustomer(Long sourceUserId, Long targetUserId) {
+        if (sourceUserId == null) {
+            throw new UserException("用户不能为空");
+        }
+        CustomerInfoBo customerInfoBo = new CustomerInfoBo();
+        customerInfoBo.setAssignedTo(sourceUserId);
+        List<CustomerInfoVo> customerInfoVoList = customerInfoService.queryList(customerInfoBo);
+        if (ArrayUtil.isEmpty(customerInfoVoList)) {
+            return true; // 没有客户可回收
+        } else {
+            List<Long> customerIds = customerInfoVoList.stream().map(CustomerInfoVo::getId).toList();
+            return transfer(customerIds, targetUserId);
+        }
+    }
+
+    @Override
+    @DSTransactional
+    public Boolean claim(Long userId, List<Long> customerIds) {
+        Long deptId;
+        if (!userId.equals(LoginHelper.getUserId())) { // 如果认领的用户不是当前登录用户，则需要校验目标用户是否存在
+            SysUserVo sysUserVo = sysUserService.selectUserById(userId);
+            if (sysUserVo == null) {
+                throw new UserException("目标用户不存在");
+            } else {
+                deptId = sysUserVo.getDeptId(); // 获取目标用户的部门ID
+            }
+        } else {
+            deptId = LoginHelper.getDeptId(); // 如果是当前登录用户，则使用当前登录用户的部门ID
+        }
+        if (ArrayUtil.isEmpty(customerIds)) {
+            throw new UserException("认领的客户不能为空");
+        }
+        for (Long customerId : customerIds) {
+            // 认领客户
+            DataPermissionHelper.ignore(() -> {
+                CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
+                CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
+                CustomerInfoVo customerInfoVo = customerInfoService.queryById(customerId);
+                if (customerInfoVo == null || customerInfoVo.getAssignedTo() != null) {
+                    throw new UserException("客户不存在或已被认领");
+                }
+                // 设置客户的 归属用户 与 归属部门
+                CustomerInfoBo customerInfoBo = new CustomerInfoBo();
+                customerInfoBo.setId(customerId);
+                customerInfoBo.setAssignedTo(userId);
+                customerInfoBo.setAssignedDept(deptId);
+                Boolean flag = customerInfoService.updateByBo(customerInfoBo);
+                if (!flag) {
+                    throw new UserException("认领客户信息失败");
+                }
+                // 认领客户的联系人
+                ContactInfoBo contactInfoBo = new ContactInfoBo();
+                contactInfoBo.setCustomerId(customerId);
+                List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
+                if (ArrayUtil.isNotEmpty(voList)) {
+                    voList.forEach(vo -> {
+                        CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
+                        // 设置联系人信息的 归属用户 与 归属部门
+                        ContactInfoBo contactBo = new ContactInfoBo();
+                        contactBo.setId(vo.getId());
+                        contactBo.setAssignedTo(userId);
+                        contactBo.setAssignedDept(deptId);
+                        Boolean contactFlag = contactInfoService.updateByBo(contactBo);
+                        if (!contactFlag) {
+                            throw new UserException("认领联系人信息失败");
+                        }
+                    });
+                }
+            });
+        }
+        return true;
+    }
 }

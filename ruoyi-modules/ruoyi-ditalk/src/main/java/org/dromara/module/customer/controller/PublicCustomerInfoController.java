@@ -8,15 +8,15 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.helper.DataPermissionHelper;
 import org.dromara.common.web.core.BaseController;
+import org.dromara.handler.ICustomerInfoHandler;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.customer.domain.bo.CustomerInfoBo;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
 import org.dromara.module.customer.service.ICustomerInfoService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 公海客户信息
@@ -32,6 +32,7 @@ public class PublicCustomerInfoController extends BaseController {
 
     private final ICustomerInfoService customerInfoService;
     private final IContactInfoService contactInfoService;
+    private final ICustomerInfoHandler customerInfoHandler;
 
     /**
      * 查询公海客户信息列表
@@ -61,4 +62,13 @@ public class PublicCustomerInfoController extends BaseController {
         return R.ok(customerInfoVo);
     }
 
+    /**
+     * 领取客户到指定用户
+     */
+    @SaCheckPermission("customer:public:claim")
+    @PutMapping("/claim/{userId}/{customerIds}")
+    public R<Void> claim(@NotNull(message = "用户ID不能为空") @PathVariable Long userId,
+                         @NotNull(message = "客户ID不能为空") @PathVariable Long[] customerIds) {
+        return toAjax(customerInfoHandler.claim(userId, List.of(customerIds)));
+    }
 }

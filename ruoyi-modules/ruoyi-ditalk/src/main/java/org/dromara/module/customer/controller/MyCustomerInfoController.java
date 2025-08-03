@@ -22,6 +22,8 @@ import org.dromara.module.customer.service.ICustomerInfoService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 我的客户信息
  *
@@ -87,27 +89,49 @@ public class MyCustomerInfoController extends BaseController {
     }
 
     /**
-     * 回收客户到公海
+     * 回收客户到客户公海
      *
-     * @param customerId 主键
+     * @param customerIds 主键
      */
     @SaCheckPermission("customer:my:reclaim")
-    @PutMapping("/reclaim/{customerId}")
-    public R<Void> reclaim(@NotNull(message = "主键不能为空")
-                           @PathVariable Long customerId) {
-        return toAjax(customerInfoHandler.reclaimById(customerId));
+    @PutMapping("/reclaim/{customerIds}")
+    public R<Void> reclaim(@NotNull(message = "线索不能为空")
+                           @PathVariable Long[] customerIds) {
+        return toAjax(customerInfoHandler.reclaimById(List.of(customerIds)));
     }
 
     /**
-     * 单个客户转移到其他用户
+     * 单个或批量转移客户到指定用户
      */
     @SaCheckPermission("customer:my:transfer")
-    @PutMapping("/transfer/{customerId}/{userId}")
-    public R<Void> transfer(@NotNull(message = "主键不能为空")
-                            @PathVariable Long customerId,
+    @PutMapping("/transfer/{customerIds}/{userId}")
+    public R<Void> transfer(@NotNull(message = "线索不能为空")
+                            @PathVariable Long[] customerIds,
                             @NotNull(message = "目标用户不能为空")
                             @PathVariable Long userId) {
-        return toAjax(customerInfoHandler.transfer(customerId, userId));
+        return toAjax(customerInfoHandler.transfer(List.of(customerIds), userId));
+    }
+
+    /**
+     * 回收用户所有线索到线索池
+     */
+    @SaCheckPermission("customer:my:reclaim")
+    @PutMapping("/reclaim/user/{userId}")
+    public R<Void> reclaimUserCustomer(@NotNull(message = "用户不能为空")
+                                   @PathVariable Long userId) {
+        return toAjax(customerInfoHandler.reclaimUserCustomer(userId));
+    }
+
+    /**
+     * 转移指定用户的线索到另一个用户
+     */
+    @SaCheckPermission("customer:my:transfer")
+    @PutMapping("/transfer/user/{sourceUserId}/{targetUserId}")
+    public R<Void> transferUserCustomer(@NotNull(message = "源用户不能为空")
+                                    @PathVariable Long sourceUserId,
+                                    @NotNull(message = "目标用户不能为空")
+                                    @PathVariable Long targetUserId) {
+        return toAjax(customerInfoHandler.transferUserCustomer(sourceUserId, targetUserId));
     }
 
 }
