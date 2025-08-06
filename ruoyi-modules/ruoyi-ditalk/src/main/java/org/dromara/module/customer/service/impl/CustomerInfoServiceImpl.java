@@ -201,4 +201,9 @@ public class CustomerInfoServiceImpl implements ICustomerInfoService {
         return baseMapper.selectVoList(pageQuery.build(lqw));
     }
 
+    @Override
+    public CustomerInfoVo queryByIdNoCache(Long id) {
+        return this.queryById(id);
+    }
+
 }

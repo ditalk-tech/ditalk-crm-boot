@@ -85,7 +85,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
         }
         for (Long leadId : leadIds) {
             // 回收客户到公海
-            LeadInfoVo leadInfoVo = leadInfoService.queryById(leadId); // !!! 这里校验数据权限，同时获取版本号
+            LeadInfoVo leadInfoVo = leadInfoService.queryByIdNoCache(leadId); // !!! 这里校验数据权限，同时获取版本号
             if (leadInfoVo == null || leadInfoVo.getAssignedTo() == null) {
                 throw new UserException("线索不存在或已在线索池中");
             }
@@ -142,7 +142,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
                 throw new UserException("目标用户不存在");
             }
             // 转移线索
-            LeadInfoVo leadInfoVo = leadInfoService.queryById(leadId); // !!! 这里校验数据权限，同时获取版本号
+            LeadInfoVo leadInfoVo = leadInfoService.queryByIdNoCache(leadId); // !!! 这里校验数据权限，同时获取版本号
             if (leadInfoVo == null) {
                 throw new UserException("线索信息不存在");
             }

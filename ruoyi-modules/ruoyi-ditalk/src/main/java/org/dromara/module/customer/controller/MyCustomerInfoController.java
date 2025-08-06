@@ -58,7 +58,7 @@ public class MyCustomerInfoController extends BaseController {
     @GetMapping("/{id}")
     public R<CustomerInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryById(id);
+        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(id);
         if (customerInfoVo == null) {
             return R.fail("数据不存在");
         }

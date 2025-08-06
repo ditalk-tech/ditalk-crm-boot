@@ -82,4 +82,12 @@ public interface IContactInfoService {
      * @return 联系人信息列表
      */
     List<ContactInfoVo> queryList(ContactInfoBo bo, IdPageQuery pageQuery);
+
+    /**
+     * 通过ID查询联系人信息，不使用缓存
+     *
+     * @param id 主键
+     * @return 联系人信息
+     */
+    ContactInfoVo queryByIdNoCache(Long id);
 }

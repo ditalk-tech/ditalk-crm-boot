@@ -205,4 +205,9 @@ public class ContactInfoServiceImpl implements IContactInfoService {
         return baseMapper.selectVoList(pageQuery.build(lqw));
     }
 
+    @Override
+    public ContactInfoVo queryByIdNoCache(Long id) {
+        return this.queryById(id);
+    }
+
 }

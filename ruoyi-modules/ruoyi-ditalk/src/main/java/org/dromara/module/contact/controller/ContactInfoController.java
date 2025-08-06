@@ -70,7 +70,7 @@ public class ContactInfoController extends BaseController {
     @GetMapping("/{id}")
     public R<ContactInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
-        return R.ok(contactInfoService.queryById(id));
+        return R.ok(contactInfoService.queryByIdNoCache(id));
     }
 
     /**

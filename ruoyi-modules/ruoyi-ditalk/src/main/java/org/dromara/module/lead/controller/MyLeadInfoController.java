@@ -58,7 +58,7 @@ public class MyLeadInfoController extends BaseController {
     @GetMapping("/{id}")
     public R<LeadInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                  @PathVariable Long id) {
-        LeadInfoVo leadInfoVo = leadInfoService.queryById(id);
+        LeadInfoVo leadInfoVo = leadInfoService.queryByIdNoCache(id);
         if (leadInfoVo == null) {
             return R.fail("数据错误");
         }

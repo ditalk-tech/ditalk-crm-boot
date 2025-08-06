@@ -86,7 +86,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         }
         for (Long customerId : customerIds) {
             // 回收客户到公海
-            CustomerInfoVo customerInfoVo = customerInfoService.queryById(customerId); // !!! 这里校验数据权限，同时获取版本号
+            CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(customerId); // !!! 这里校验数据权限，同时获取版本号
             if (customerInfoVo == null || customerInfoVo.getAssignedTo() == null) {
                 throw new UserException("客户不存在或已在客户公海中");
             }
@@ -143,7 +143,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
                 throw new UserException("目标用户不存在");
             }
             // 转移客户
-            CustomerInfoVo customerInfoVo = customerInfoService.queryById(customerId); // !!! 这里校验数据权限，同时获取版本号
+            CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(customerId); // !!! 这里校验数据权限，同时获取版本号
             if (customerInfoVo == null) {
                 throw new UserException("客户信息不存在");
             }

@@ -82,4 +82,12 @@ public interface ILeadInfoService {
      * @return 线索信息列表
      */
     List<LeadInfoVo> queryList(LeadInfoBo bo, IdPageQuery pageQuery);
+
+    /**
+     * 根据客户ID查询线索信息，不使用缓存
+     *
+     * @param id 客户ID
+     * @return 线索信息
+     */
+    LeadInfoVo queryByIdNoCache(Long id);
 }

@@ -198,4 +198,9 @@ public class LeadInfoServiceImpl implements ILeadInfoService {
         return baseMapper.selectVoList(pageQuery.build(lqw));
     }
 
+    @Override
+    public LeadInfoVo queryByIdNoCache(Long id) {
+        return this.queryById(id);
+    }
+
 }

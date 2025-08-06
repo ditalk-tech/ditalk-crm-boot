@@ -82,4 +82,12 @@ public interface ICustomerInfoService {
      * @return 客户信息列表
      */
     List<CustomerInfoVo> queryList(CustomerInfoBo bo, IdPageQuery pageQuery);
+
+    /**
+     * 通过客户ID查询客户信息，不使用缓存
+     *
+     * @param id 客户ID
+     * @return 客户信息
+     */
+    CustomerInfoVo queryByIdNoCache(Long id);
 }
