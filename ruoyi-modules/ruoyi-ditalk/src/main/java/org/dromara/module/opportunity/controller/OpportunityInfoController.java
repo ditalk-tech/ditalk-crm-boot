@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.common.core.exception.user.UserException;
+import org.dromara.module.customer.domain.vo.CustomerInfoVo;
+import org.dromara.module.customer.service.ICustomerInfoService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -35,6 +38,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class OpportunityInfoController extends BaseController {
 
     private final IOpportunityInfoService opportunityInfoService;
+    private final ICustomerInfoService customerInfoService;
 
     /**
      * 查询商机信息列表
@@ -42,6 +46,13 @@ public class OpportunityInfoController extends BaseController {
     @SaCheckPermission("opportunity:info:list")
     @GetMapping("/list")
     public TableDataInfo<OpportunityInfoVo> list(OpportunityInfoBo bo, PageQuery pageQuery) {
+        if (bo.getCustomerId() == null) {
+            throw new UserException("请先指定客户");
+        }
+        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(bo.getCustomerId());
+        if (customerInfoVo == null) {
+            return TableDataInfo.build();
+        }
         return opportunityInfoService.queryPageList(bo, pageQuery);
     }
 
@@ -52,6 +63,13 @@ public class OpportunityInfoController extends BaseController {
     @Log(title = "商机信息", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(OpportunityInfoBo bo, HttpServletResponse response) {
+        if (bo.getCustomerId() == null) {
+            throw new UserException("请先指定客户");
+        }
+        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(bo.getCustomerId());
+        if (customerInfoVo == null) {
+            throw new UserException("活动记录为空，无数据导出");
+        }
         List<OpportunityInfoVo> list = opportunityInfoService.queryList(bo);
         ExcelUtil.exportExcel(list, "商机信息", OpportunityInfoVo.class, response);
     }
@@ -65,7 +83,14 @@ public class OpportunityInfoController extends BaseController {
     @GetMapping("/{id}")
     public R<OpportunityInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
-        return R.ok(opportunityInfoService.queryById(id));
+        OpportunityInfoVo opportunityInfoVo = opportunityInfoService.queryById(id);
+        if (opportunityInfoVo != null && opportunityInfoVo.getCustomerId() != null) {
+            CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(opportunityInfoVo.getCustomerId());
+            if (customerInfoVo == null) {
+                return R.fail("未找到对应的客户活动记录");
+            }
+        }
+        return R.ok(opportunityInfoVo);
     }
 
     /**
@@ -76,6 +101,10 @@ public class OpportunityInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody OpportunityInfoBo bo) {
+        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(bo.getCustomerId());
+        if (customerInfoVo == null) {
+            throw new UserException("新增操作失败，客户不存在");
+        }
         return toAjax(opportunityInfoService.insertByBo(bo));
     }
 
@@ -87,6 +116,10 @@ public class OpportunityInfoController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody OpportunityInfoBo bo) {
+        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(bo.getCustomerId());
+        if (customerInfoVo == null) {
+            throw new UserException("修改操作失败，客户不存在");
+        }
         return toAjax(opportunityInfoService.updateByBo(bo));
     }
 
@@ -100,6 +133,16 @@ public class OpportunityInfoController extends BaseController {
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
+        for (Long id : ids) {
+            OpportunityInfoVo opportunityInfoVo = opportunityInfoService.queryById(id);
+            if (opportunityInfoVo == null || opportunityInfoVo.getCustomerId() == null) {
+                throw new UserException("删除操作失败，记录不存在");
+            }
+            CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(opportunityInfoVo.getCustomerId());
+            if (customerInfoVo == null) {
+                throw new UserException("删除操作失败，客户不存在");
+            }
+        }
         return toAjax(opportunityInfoService.deleteWithValidByIds(List.of(ids), true));
     }
 }

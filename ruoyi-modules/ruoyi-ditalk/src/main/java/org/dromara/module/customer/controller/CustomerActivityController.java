@@ -148,7 +148,7 @@ public class CustomerActivityController extends BaseController {
         for (Long id : ids) {
             CustomerActivityVo customerActivityVo = customerActivityService.queryById(id);
             if (customerActivityVo == null || customerActivityVo.getCustomerId() == null) {
-                throw new UserException("删除操作失败，客户活动记录不存在");
+                throw new UserException("删除操作失败，记录不存在");
             }
             CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(customerActivityVo.getCustomerId());
             if (customerInfoVo == null) {
