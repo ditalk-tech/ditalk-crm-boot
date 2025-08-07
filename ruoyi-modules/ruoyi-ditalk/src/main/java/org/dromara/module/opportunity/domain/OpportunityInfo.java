@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serial;
 
@@ -55,11 +54,6 @@ public class OpportunityInfo extends TenantEntity {
      * 预计销售金额
      */
     private Long amount;
-
-    /**
-     * 指派给
-     */
-    private Long assignedTo;
 
     /**
      * 订单ID

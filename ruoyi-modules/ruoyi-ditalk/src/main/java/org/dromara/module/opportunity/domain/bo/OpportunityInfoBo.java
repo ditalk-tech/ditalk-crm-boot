@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * 商机信息业务对象 opportunity_info
@@ -50,11 +49,6 @@ public class OpportunityInfoBo extends BaseEntity {
      * 预计销售金额
      */
     private Long amount;
-
-    /**
-     * 指派给
-     */
-    private Long assignedTo;
 
     /**
      * 订单ID

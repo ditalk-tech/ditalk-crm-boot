@@ -1,7 +1,6 @@
 package org.dromara.module.opportunity.domain.vo;
 
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.dromara.module.opportunity.domain.OpportunityInfo;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
@@ -12,7 +11,6 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
 
 
 
@@ -65,12 +63,6 @@ public class OpportunityInfoVo implements Serializable {
      */
     @ExcelProperty(value = "预计销售金额")
     private Long amount;
-
-    /**
-     * 指派给
-     */
-    @ExcelProperty(value = "指派给")
-    private Long assignedTo;
 
     /**
      * 订单ID
