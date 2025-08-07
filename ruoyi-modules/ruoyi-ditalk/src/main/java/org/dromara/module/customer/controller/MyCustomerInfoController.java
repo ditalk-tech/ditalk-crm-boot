@@ -1,6 +1,7 @@
 package org.dromara.module.customer.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.core.bean.BeanUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.dromara.common.web.core.BaseController;
 import org.dromara.handler.ICustomerInfoHandler;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.customer.domain.bo.CustomerInfoBo;
+import org.dromara.module.customer.domain.vo.CustomerInfoOptionVo;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
 import org.dromara.module.customer.service.ICustomerInfoService;
 import org.springframework.validation.annotation.Validated;
@@ -134,4 +136,25 @@ public class MyCustomerInfoController extends BaseController {
         return toAjax(customerInfoHandler.transferUserCustomer(sourceUserId, targetUserId));
     }
 
+
+    /**
+     * 查询客户信息选项列表
+     */
+    @SaCheckPermission("customer:my:list")
+    @GetMapping("/list/option")
+    public R<List<CustomerInfoOptionVo>> listOption(CustomerInfoBo bo) {
+        List<CustomerInfoVo> voList = customerInfoService.queryList(bo);
+        return R.ok(BeanUtil.copyToList(voList, CustomerInfoOptionVo.class));
+    }
+
+    /**
+     * 分页查询客户信息选项列表
+     */
+    @SaCheckPermission("customer:my:list")
+    @GetMapping("/list/page/option")
+    public R<List<CustomerInfoOptionVo>> listPageOption(CustomerInfoBo bo, PageQuery pageQuery) {
+        TableDataInfo<CustomerInfoVo> tableDataInfo = customerInfoService.queryPageList(bo, pageQuery);
+        List<CustomerInfoVo> voList = tableDataInfo.getRows();
+        return R.ok(BeanUtil.copyToList(voList, CustomerInfoOptionVo.class));
+    }
 }
