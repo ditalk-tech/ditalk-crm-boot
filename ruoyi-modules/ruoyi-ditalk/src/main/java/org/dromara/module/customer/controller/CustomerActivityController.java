@@ -161,16 +161,17 @@ public class CustomerActivityController extends BaseController {
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
-        for (Long id : ids) {
-            CustomerActivityVo customerActivityVo = customerActivityService.queryById(id);
-            if (customerActivityVo == null || customerActivityVo.getCustomerId() == null) {
-                throw new UserException("删除操作失败，记录不存在");
-            }
-            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(customerActivityVo.getCustomerId());
-            if (customerInfoVo == null) {
-                throw new UserException("删除操作失败，客户不存在");
-            }
-        }
-        return toAjax(customerActivityService.deleteWithValidByIds(List.of(ids), true));
+        return R.fail("暂不支持删除活动记录，请联系管理员进行处理");
+//        for (Long id : ids) {
+//            CustomerActivityVo customerActivityVo = customerActivityService.queryById(id);
+//            if (customerActivityVo == null || customerActivityVo.getCustomerId() == null) {
+//                throw new UserException("删除操作失败，记录不存在");
+//            }
+//            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(customerActivityVo.getCustomerId());
+//            if (customerInfoVo == null) {
+//                throw new UserException("删除操作失败，客户不存在");
+//            }
+//        }
+//        return toAjax(customerActivityService.deleteWithValidByIds(List.of(ids), true));
     }
 }

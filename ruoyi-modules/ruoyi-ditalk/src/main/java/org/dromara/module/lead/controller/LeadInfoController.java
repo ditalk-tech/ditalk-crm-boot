@@ -100,6 +100,7 @@ public class LeadInfoController extends BaseController {
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
-        return toAjax(leadInfoService.deleteWithValidByIds(List.of(ids), true));
+        return R.fail("暂不支持删除线索信息，请联系管理员进行处理");
+//        return toAjax(leadInfoService.deleteWithValidByIds(List.of(ids), true));
     }
 }

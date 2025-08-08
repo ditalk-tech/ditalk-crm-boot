@@ -101,7 +101,8 @@ public class CustomerInfoController extends BaseController {
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
-        return toAjax(customerInfoService.deleteWithValidByIds(List.of(ids), true));
+        return R.fail("暂不支持删除客户信息，请联系管理员进行处理");
+//        return toAjax(customerInfoService.deleteWithValidByIds(List.of(ids), true));
     }
 
 }
