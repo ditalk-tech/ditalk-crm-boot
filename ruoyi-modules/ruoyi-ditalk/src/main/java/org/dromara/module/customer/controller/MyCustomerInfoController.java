@@ -48,6 +48,7 @@ public class MyCustomerInfoController extends BaseController {
     @SaCheckPermission("customer:my:list")
     @GetMapping("/list")
     public TableDataInfo<CustomerInfoVo> list(CustomerInfoBo bo, PageQuery pageQuery) {
+        bo.getParams().put("isPublic", false);
         return customerInfoService.queryPageList(bo, pageQuery);
     }
 
@@ -136,25 +137,27 @@ public class MyCustomerInfoController extends BaseController {
         return toAjax(customerInfoHandler.transferUserCustomer(sourceUserId, targetUserId));
     }
 
-
     /**
-     * 查询客户信息选项列表
+     * 查询我的客户信息选项列表
      */
     @SaCheckPermission("customer:my:list")
     @GetMapping("/list/option")
     public R<List<CustomerInfoOptionVo>> listOption(CustomerInfoBo bo) {
+        bo.getParams().put("isPublic", false);
         List<CustomerInfoVo> voList = customerInfoService.queryList(bo);
         return R.ok(BeanUtil.copyToList(voList, CustomerInfoOptionVo.class));
     }
 
     /**
-     * 分页查询客户信息选项列表
+     * 分页查询我的客户信息选项列表
      */
     @SaCheckPermission("customer:my:list")
     @GetMapping("/list/page/option")
     public R<List<CustomerInfoOptionVo>> listPageOption(CustomerInfoBo bo, PageQuery pageQuery) {
+        bo.getParams().put("isPublic", false);
         TableDataInfo<CustomerInfoVo> tableDataInfo = customerInfoService.queryPageList(bo, pageQuery);
         List<CustomerInfoVo> voList = tableDataInfo.getRows();
         return R.ok(BeanUtil.copyToList(voList, CustomerInfoOptionVo.class));
     }
+
 }

@@ -28,7 +28,7 @@ public class ContactInfoHandlerImpl implements IContactInfoHandler {
     @Override
     @DSTransactional
     public Boolean add(ContactInfoBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("客户信息不存在");
         }

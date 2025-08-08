@@ -110,6 +110,8 @@ public class CustomerInfoServiceImpl implements ICustomerInfoService {
         lqw.between(params.get("beginConvertedTime") != null && params.get("endConvertedTime") != null,
             CustomerInfo::getConvertedTime, params.get("beginConvertedTime"), params.get("endConvertedTime"));
         lqw.isNotNull(CustomerInfo::getConvertedTime); // !!! 已转化的客户，与 lead 的关键区别
+        // 没有指定 isPublic 参数时，默认查询所有客户
+        lqw.isNotNull(params.get("isPublic") != null && !(Boolean)params.get("isPublic"), CustomerInfo::getAssignedTo); // 只查询已指派的客户，即我的客户
         lqw.isNull(params.get("isPublic") != null && (Boolean)params.get("isPublic"), CustomerInfo::getAssignedTo); // 只查询未指派的客户，即公海客户
         return lqw;
     }
@@ -204,6 +206,11 @@ public class CustomerInfoServiceImpl implements ICustomerInfoService {
     @Override
     public CustomerInfoVo queryByIdNoCache(Long id) {
         return this.queryById(id);
+    }
+
+    @Override
+    public CustomerInfoVo queryAllByIdNoCache(Long id) {
+        return baseMapper.selectVoById(id);
     }
 
 }

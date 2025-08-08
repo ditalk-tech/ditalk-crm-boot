@@ -109,7 +109,9 @@ public class LeadInfoServiceImpl implements ILeadInfoService {
         lqw.between(params.get("beginConvertedTime") != null && params.get("endConvertedTime") != null,
             LeadInfo::getConvertedTime, params.get("beginConvertedTime"), params.get("endConvertedTime"));
         lqw.isNull(LeadInfo::getConvertedTime); // !!! 未转化的客户，与 customer 的关键区别
-        lqw.isNull(params.get("isPublic") != null && (Boolean)params.get("isPublic"), LeadInfo::getAssignedTo); // 只查询未指派的客户，即公海客户
+        // 没有指定 isPublic 参数时，默认查询所有线索
+        lqw.isNotNull(params.get("isPublic") != null && !(Boolean)params.get("isPublic"), LeadInfo::getAssignedTo); // 只查询已指派的线索，即我的线索
+        lqw.isNull(params.get("isPublic") != null && (Boolean)params.get("isPublic"), LeadInfo::getAssignedTo); // 只查询未指派的线索，即公海线索
         return lqw;
     }
 

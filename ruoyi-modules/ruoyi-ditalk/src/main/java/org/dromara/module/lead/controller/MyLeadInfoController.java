@@ -1,6 +1,7 @@
 package org.dromara.module.lead.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.core.bean.BeanUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.dromara.common.web.core.BaseController;
 import org.dromara.handler.ILeadInfoHandler;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.lead.domain.bo.LeadInfoBo;
+import org.dromara.module.lead.domain.vo.LeadInfoOptionVo;
 import org.dromara.module.lead.domain.vo.LeadInfoVo;
 import org.dromara.module.lead.service.ILeadInfoService;
 import org.springframework.validation.annotation.Validated;
@@ -46,6 +48,7 @@ public class MyLeadInfoController extends BaseController {
     @SaCheckPermission("lead:my:list")
     @GetMapping("/list")
     public TableDataInfo<LeadInfoVo> list(LeadInfoBo bo, PageQuery pageQuery) {
+        bo.getParams().put("isPublic", false);
         return leadInfoService.queryPageList(bo, pageQuery);
     }
 
@@ -133,4 +136,28 @@ public class MyLeadInfoController extends BaseController {
                                 @PathVariable Long targetUserId) {
         return toAjax(leadInfoHandler.transferUserLead(sourceUserId, targetUserId));
     }
+
+    /**
+     * 查询我的线索信息选项列表
+     */
+    @SaCheckPermission("lead:my:list")
+    @GetMapping("/list/option")
+    public R<List<LeadInfoOptionVo>> listOption(LeadInfoBo bo) {
+        bo.getParams().put("isPublic", false);
+        List<LeadInfoVo> voList = leadInfoService.queryList(bo);
+        return R.ok(BeanUtil.copyToList(voList, LeadInfoOptionVo.class));
+    }
+
+    /**
+     * 分页查询我的线索信息选项列表
+     */
+    @SaCheckPermission("lead:my:list")
+    @GetMapping("/list/page/option")
+    public R<List<LeadInfoOptionVo>> listPageOption(LeadInfoBo bo, PageQuery pageQuery) {
+        bo.getParams().put("isPublic", false);
+        TableDataInfo<LeadInfoVo> tableDataInfo = leadInfoService.queryPageList(bo, pageQuery);
+        List<LeadInfoVo> voList = tableDataInfo.getRows();
+        return R.ok(BeanUtil.copyToList(voList, LeadInfoOptionVo.class));
+    }
+
 }

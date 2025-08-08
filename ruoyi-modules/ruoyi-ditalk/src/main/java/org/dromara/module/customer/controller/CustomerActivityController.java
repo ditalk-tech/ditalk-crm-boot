@@ -52,9 +52,11 @@ public class CustomerActivityController extends BaseController {
         if (bo.getCustomerId() == null) {
             throw new UserException("请先指定客户");
         }
-        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
-            return TableDataInfo.build();
+            TableDataInfo<CustomerActivityVo> build = TableDataInfo.build();
+            build.setRows(List.of());
+            return build;
         }
         TableDataInfo<CustomerActivityVo> tableDataInfo = customerActivityService.queryPageList(bo, pageQuery);
         if (tableDataInfo.getRows() != null) {
@@ -78,7 +80,7 @@ public class CustomerActivityController extends BaseController {
         if (bo.getCustomerId() == null) {
             throw new UserException("请先指定客户");
         }
-        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("活动记录为空，无数据导出");
         }
@@ -97,7 +99,7 @@ public class CustomerActivityController extends BaseController {
                                      @PathVariable Long id) {
         CustomerActivityVo customerActivityVo = customerActivityService.queryById(id);
         if (customerActivityVo != null && customerActivityVo.getCustomerId() != null) {
-            CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(customerActivityVo.getCustomerId());
+            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(customerActivityVo.getCustomerId());
             if (customerInfoVo == null) {
                 return R.fail("未找到对应的客户活动记录");
             }
@@ -113,7 +115,7 @@ public class CustomerActivityController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CustomerActivityBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("新增操作失败，客户不存在");
         }
@@ -128,7 +130,7 @@ public class CustomerActivityController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CustomerActivityBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("修改操作失败，客户不存在");
         }
@@ -150,7 +152,7 @@ public class CustomerActivityController extends BaseController {
             if (customerActivityVo == null || customerActivityVo.getCustomerId() == null) {
                 throw new UserException("删除操作失败，记录不存在");
             }
-            CustomerInfoVo customerInfoVo = customerInfoService.queryByIdNoCache(customerActivityVo.getCustomerId());
+            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(customerActivityVo.getCustomerId());
             if (customerInfoVo == null) {
                 throw new UserException("删除操作失败，客户不存在");
             }
