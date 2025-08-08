@@ -16,4 +16,12 @@ public interface IContactInfoHandler {
      * @return 是否添加成功
      */
     Boolean add(ContactInfoBo bo);
+
+    /**
+     * 是否是默认联系人
+     *
+     * @param id 联系人ID
+     * @return 是否是默认联系人
+     */
+    Boolean checkIsDefaultContact(Long id);
 }

@@ -105,6 +105,12 @@ public class ContactInfoController extends BaseController {
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
+        for (Long id : ids) {
+            Boolean b = contactInfoHandler.checkIsDefaultContact(id);
+            if (b) {
+                return R.fail("默认联系人不能删除");
+            }
+        }
         return toAjax(contactInfoService.deleteWithValidByIds(List.of(ids), true));
     }
 
