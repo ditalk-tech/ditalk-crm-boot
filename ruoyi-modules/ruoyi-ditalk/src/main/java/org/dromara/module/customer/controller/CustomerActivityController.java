@@ -119,6 +119,13 @@ public class CustomerActivityController extends BaseController {
         if (customerInfoVo == null) {
             throw new UserException("新增操作失败，客户不存在");
         }
+        ContactInfoVo contactInfoVo = contactInfoService.queryById(bo.getContactId());
+        if (contactInfoVo == null) {
+            throw new UserException("新增操作失败，联系人不存在");
+        }
+        if (!contactInfoVo.getCustomerId().equals(bo.getCustomerId())) {
+            throw new UserException("新增操作失败，联系人与客户不匹配");
+        }
         return toAjax(customerActivityService.insertByBo(bo));
     }
 
@@ -133,6 +140,13 @@ public class CustomerActivityController extends BaseController {
         CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("修改操作失败，客户不存在");
+        }
+        ContactInfoVo contactInfoVo = contactInfoService.queryById(bo.getContactId());
+        if (contactInfoVo == null) {
+            throw new UserException("修改操作失败，联系人不存在");
+        }
+        if (!contactInfoVo.getCustomerId().equals(bo.getCustomerId())) {
+            throw new UserException("修改操作失败，联系人与客户不匹配");
         }
         return toAjax(customerActivityService.updateByBo(bo));
     }
