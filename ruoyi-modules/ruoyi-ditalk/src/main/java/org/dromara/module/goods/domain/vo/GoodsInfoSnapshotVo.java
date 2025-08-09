@@ -156,5 +156,22 @@ public class GoodsInfoSnapshotVo implements Serializable {
     @ExcelDictFormat(dictType = "ditalk_goods_state")
     private String state;
 
+    /**
+     * 品牌名
+     */
+    @ExcelProperty(value = "品牌名")
+    private String brandName;
+
+    /**
+     * 店铺名
+     */
+    @ExcelProperty(value = "店铺名")
+    private String shopName;
+
+    /**
+     * 分类名
+     */
+    @ExcelProperty(value = "分类名")
+    private String categoryName;
 
 }

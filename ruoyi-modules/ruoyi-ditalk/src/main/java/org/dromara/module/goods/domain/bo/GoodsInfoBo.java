@@ -132,4 +132,9 @@ public class GoodsInfoBo extends BaseEntity {
     @NotBlank(message = "状态不能为空", groups = { AddGroup.class, EditGroup.class })
     private String state;
 
+    /**
+     * 商品说明
+     */
+    private String content;
+
 }

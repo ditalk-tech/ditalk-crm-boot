@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.handler.IGoodsInfoHandler;
 import org.dromara.module.goods.domain.bo.GoodsInfoContentBo;
 import org.dromara.module.goods.domain.vo.*;
 import org.dromara.module.goods.service.IGoodsBrandService;
@@ -44,6 +45,7 @@ public class GoodsInfoController extends BaseController {
     private final IShopInfoService shopInfoService;
     private final IGoodsCategoryService goodsCategoryService;
     private final IGoodsBrandService goodsBrandService;
+    private final IGoodsInfoHandler goodsInfoHandler;
 
     private void extendVo(GoodsInfoVo goodsInfoVo) {
         if (goodsInfoVo == null) {
@@ -127,7 +129,7 @@ public class GoodsInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<GoodsInfoVo> add(@Validated(AddGroup.class) @RequestBody GoodsInfoBo bo) {
-        Boolean flag = goodsInfoService.insertByBo(bo);
+        Boolean flag = goodsInfoHandler.add(bo);
         if (!flag) {
             return R.fail();
         }
@@ -143,7 +145,7 @@ public class GoodsInfoController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<GoodsInfoVo> edit(@Validated(EditGroup.class) @RequestBody GoodsInfoBo bo) {
-        Boolean flag = goodsInfoService.updateByBo(bo);
+        Boolean flag = goodsInfoHandler.edit(bo);
         if (!flag) {
             return R.fail();
         }
@@ -173,11 +175,12 @@ public class GoodsInfoController extends BaseController {
     @PutMapping("/content")
     public R<GoodsInfoVo> editContent(@Validated(EditGroup.class) @RequestBody GoodsInfoContentBo bo) {
         GoodsInfoBo goodsInfoBo = BeanUtil.copyProperties(bo, GoodsInfoBo.class);
-        Boolean flag = goodsInfoService.updateByBo(goodsInfoBo);
+        Boolean flag = goodsInfoHandler.edit(goodsInfoBo);
         if (!flag) {
             return R.fail();
         }
         GoodsInfoVo goodsInfoVo = goodsInfoService.queryById(goodsInfoBo.getId());
         return R.ok(goodsInfoVo);
     }
+
 }

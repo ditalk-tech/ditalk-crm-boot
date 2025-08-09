@@ -82,4 +82,12 @@ public interface IGoodsInfoSnapshotService {
      * @return 商品信息快照列表
      */
     List<GoodsInfoSnapshotVo> queryList(GoodsInfoSnapshotBo bo, IdPageQuery pageQuery);
+
+    /**
+     * 查询最新的商品信息快照
+     *
+     * @param goodsId 商品信息ID
+     * @return 最新的商品信息快照
+     */
+    GoodsInfoSnapshotVo queryLastByGoodsId(Long goodsId);
 }

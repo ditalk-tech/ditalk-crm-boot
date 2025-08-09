@@ -184,4 +184,13 @@ public class GoodsInfoSnapshotServiceImpl implements IGoodsInfoSnapshotService {
         return baseMapper.selectVoList(pageQuery.build(lqw));
     }
 
+    @Override
+    public GoodsInfoSnapshotVo queryLastByGoodsId(Long goodsId) {
+        GoodsInfoSnapshotBo bo = new GoodsInfoSnapshotBo();
+        bo.setGoodsId(goodsId);
+        LambdaQueryWrapper<GoodsInfoSnapshot> lqw = buildWrapper(bo);
+        lqw.last("limit 1");
+        return baseMapper.selectVoOne(lqw);
+    }
+
 }
