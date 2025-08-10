@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.handler.IOpportunityOrderItemHandler;
+import org.dromara.module.opportunity.domain.bo.OpportunityOrderItemTinyBo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -35,6 +37,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class OpportunityOrderItemController extends BaseController {
 
     private final IOpportunityOrderItemService opportunityOrderItemService;
+    private final IOpportunityOrderItemHandler opportunityOrderItemHandler;
 
     /**
      * 查询商机商品列表
@@ -68,27 +71,27 @@ public class OpportunityOrderItemController extends BaseController {
         return R.ok(opportunityOrderItemService.queryById(id));
     }
 
-    /**
-     * 新增商机商品
-     */
-    @SaCheckPermission("opportunity:orderItem:add")
-    @Log(title = "商机商品", businessType = BusinessType.INSERT)
-    @RepeatSubmit()
-    @PostMapping()
-    public R<Void> add(@Validated(AddGroup.class) @RequestBody OpportunityOrderItemBo bo) {
-        return toAjax(opportunityOrderItemService.insertByBo(bo));
-    }
-
-    /**
-     * 修改商机商品
-     */
-    @SaCheckPermission("opportunity:orderItem:edit")
-    @Log(title = "商机商品", businessType = BusinessType.UPDATE)
-    @RepeatSubmit()
-    @PutMapping()
-    public R<Void> edit(@Validated(EditGroup.class) @RequestBody OpportunityOrderItemBo bo) {
-        return toAjax(opportunityOrderItemService.updateByBo(bo));
-    }
+//    /**
+//     * 新增商机商品
+//     */
+//    @SaCheckPermission("opportunity:orderItem:add")
+//    @Log(title = "商机商品", businessType = BusinessType.INSERT)
+//    @RepeatSubmit()
+//    @PostMapping()
+//    public R<Void> add(@Validated(AddGroup.class) @RequestBody OpportunityOrderItemBo bo) {
+//        return toAjax(opportunityOrderItemService.insertByBo(bo));
+//    }
+//
+//    /**
+//     * 修改商机商品
+//     */
+//    @SaCheckPermission("opportunity:orderItem:edit")
+//    @Log(title = "商机商品", businessType = BusinessType.UPDATE)
+//    @RepeatSubmit()
+//    @PutMapping()
+//    public R<Void> edit(@Validated(EditGroup.class) @RequestBody OpportunityOrderItemBo bo) {
+//        return toAjax(opportunityOrderItemService.updateByBo(bo));
+//    }
 
     /**
      * 删除商机商品
@@ -102,4 +105,27 @@ public class OpportunityOrderItemController extends BaseController {
                           @PathVariable Long[] ids) {
         return toAjax(opportunityOrderItemService.deleteWithValidByIds(List.of(ids), true));
     }
+
+    /**
+     * 新增商机商品_快捷版
+     */
+    @SaCheckPermission("opportunity:orderItem:add")
+    @Log(title = "商机商品", businessType = BusinessType.INSERT)
+    @RepeatSubmit()
+    @PostMapping()
+    public R<Void> addFunc(@Validated(AddGroup.class) @RequestBody OpportunityOrderItemTinyBo bo) {
+        return toAjax(opportunityOrderItemHandler.add(bo));
+    }
+
+    /**
+     * 修改商机商品_快捷版
+     */
+    @SaCheckPermission("opportunity:orderItem:edit")
+    @Log(title = "商机商品", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PutMapping()
+    public R<Void> editFunc(@Validated(EditGroup.class) @RequestBody OpportunityOrderItemTinyBo bo) {
+        return toAjax(opportunityOrderItemHandler.edit(bo));
+    }
+
 }

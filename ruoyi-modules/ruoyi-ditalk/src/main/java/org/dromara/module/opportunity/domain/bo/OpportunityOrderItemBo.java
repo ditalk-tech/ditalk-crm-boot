@@ -127,5 +127,4 @@ public class OpportunityOrderItemBo extends BaseEntity {
     @NotNull(message = "总价不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long totalPrice;
 
-
 }
