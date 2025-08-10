@@ -1,5 +1,6 @@
 package org.dromara.handler.impl;
 
+import cn.hutool.core.collection.IterUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
@@ -81,7 +82,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
     @Override
     @DSTransactional
     public Boolean reclaimById(List<Long> customerIds) {
-        if (ArrayUtil.isEmpty(customerIds)) {
+        if (IterUtil.isEmpty(customerIds)) {
             throw new UserException("回收的客户不能为空");
         }
         for (Long customerId : customerIds) {
@@ -109,7 +110,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             ContactInfoBo contactInfoBo = new ContactInfoBo();
             contactInfoBo.setCustomerId(customerId);
             List<ContactInfoVo> voList = DataPermissionHelper.ignore(() -> contactInfoService.queryList(contactInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
-            if (ArrayUtil.isNotEmpty(voList.isEmpty())) {
+            if (IterUtil.isNotEmpty(voList)) {
                 voList.forEach(vo -> {
                     CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
                     // 设置联系人信息的 归属用户 与 归属部门 为空
@@ -134,7 +135,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
     @Override
     @DSTransactional
     public Boolean transfer(List<Long> customerIds, Long userId) {
-        if (ArrayUtil.isEmpty(customerIds)) {
+        if (IterUtil.isEmpty(customerIds)) {
             throw new UserException("转移的客户不能为空");
         }
         for (Long customerId : customerIds) {
@@ -164,7 +165,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             contactInfoBo.setCustomerId(customerId);
             DataPermissionHelper.ignore(() -> {  // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
                 List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
-                if (ArrayUtil.isNotEmpty(voList)) {
+                if (IterUtil.isNotEmpty(voList)) {
                     voList.forEach(vo -> {
                         CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
                         // 设置联系人信息的 归属用户 与 归属部门
@@ -193,7 +194,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         CustomerInfoBo customerInfoBo = new CustomerInfoBo();
         customerInfoBo.setAssignedTo(userId);
         List<CustomerInfoVo> customerInfoVoList = customerInfoService.queryList(customerInfoBo);
-        if (ArrayUtil.isEmpty(customerInfoVoList)) {
+        if (IterUtil.isEmpty(customerInfoVoList)) {
             return true; // 没有客户可回收
         } else {
             List<Long> customerIds = customerInfoVoList.stream().map(CustomerInfoVo::getId).toList();
@@ -210,7 +211,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         CustomerInfoBo customerInfoBo = new CustomerInfoBo();
         customerInfoBo.setAssignedTo(sourceUserId);
         List<CustomerInfoVo> customerInfoVoList = customerInfoService.queryList(customerInfoBo);
-        if (ArrayUtil.isEmpty(customerInfoVoList)) {
+        if (IterUtil.isEmpty(customerInfoVoList)) {
             return true; // 没有客户可回收
         } else {
             List<Long> customerIds = customerInfoVoList.stream().map(CustomerInfoVo::getId).toList();
@@ -232,7 +233,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
         } else {
             deptId = LoginHelper.getDeptId(); // 如果是当前登录用户，则使用当前登录用户的部门ID
         }
-        if (ArrayUtil.isEmpty(customerIds)) {
+        if (IterUtil.isEmpty(customerIds)) {
             throw new UserException("认领的客户不能为空");
         }
         for (Long customerId : customerIds) {
@@ -257,7 +258,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
                 ContactInfoBo contactInfoBo = new ContactInfoBo();
                 contactInfoBo.setCustomerId(customerId);
                 List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
-                if (ArrayUtil.isNotEmpty(voList)) {
+                if (IterUtil.isNotEmpty(voList)) {
                     voList.forEach(vo -> {
                         CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
                         // 设置联系人信息的 归属用户 与 归属部门

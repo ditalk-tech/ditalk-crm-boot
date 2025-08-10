@@ -1,5 +1,6 @@
 package org.dromara.handler.impl;
 
+import cn.hutool.core.collection.IterUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
@@ -80,7 +81,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
     @Override
     @DSTransactional
     public Boolean reclaimById(List<Long> leadIds) {
-        if (ArrayUtil.isEmpty(leadIds)) {
+        if (IterUtil.isEmpty(leadIds)) {
             throw new UserException("回收的线索不能为空");
         }
         for (Long leadId : leadIds) {
@@ -108,7 +109,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
             ContactInfoBo contactInfoBo = new ContactInfoBo();
             contactInfoBo.setCustomerId(leadId);
             List<ContactInfoVo> voList = DataPermissionHelper.ignore(() -> contactInfoService.queryList(contactInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有线索权限就有权回收对应联系人
-            if (ArrayUtil.isNotEmpty(voList.isEmpty())) {
+            if (IterUtil.isNotEmpty(voList)) {
                 voList.forEach(vo -> {
                     CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
                     // 设置联系人信息的 归属用户 与 归属部门 为空
@@ -133,7 +134,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
     @Override
     @DSTransactional
     public Boolean transfer(List<Long> leadIds, Long userId) {
-        if (ArrayUtil.isEmpty(leadIds)) {
+        if (IterUtil.isEmpty(leadIds)) {
             throw new UserException("转移的线索不能为空");
         }
         for (Long leadId : leadIds) {
@@ -163,7 +164,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
             contactInfoBo.setCustomerId(leadId);
             DataPermissionHelper.ignore(() -> {  // !!! 这里忽略数据权限校验，因为是回收操作，有线索权限就有权回收对应联系人
                 List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
-                if (ArrayUtil.isNotEmpty(voList)) {
+                if (IterUtil.isNotEmpty(voList)) {
                     voList.forEach(vo -> {
                         CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
                         // 设置联系人信息的 归属用户 与 归属部门
@@ -192,7 +193,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
         LeadInfoBo leadInfoBo = new LeadInfoBo();
         leadInfoBo.setAssignedTo(userId);
         List<LeadInfoVo> leadInfoVoList = leadInfoService.queryList(leadInfoBo);
-        if (ArrayUtil.isEmpty(leadInfoVoList)) {
+        if (IterUtil.isEmpty(leadInfoVoList)) {
             return true; // 没有线索可回收
         } else {
             List<Long> leadIds = leadInfoVoList.stream().map(LeadInfoVo::getId).toList();
@@ -209,7 +210,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
         LeadInfoBo leadInfoBo = new LeadInfoBo();
         leadInfoBo.setAssignedTo(sourceUserId);
         List<LeadInfoVo> leadInfoVoList = leadInfoService.queryList(leadInfoBo);
-        if (ArrayUtil.isEmpty(leadInfoVoList)) {
+        if (IterUtil.isEmpty(leadInfoVoList)) {
             return true; // 没有线索可回收
         } else {
             List<Long> leadIds = leadInfoVoList.stream().map(LeadInfoVo::getId).toList();
@@ -231,7 +232,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
         } else {
             deptId = LoginHelper.getDeptId(); // 如果是当前登录用户，则使用当前登录用户的部门ID
         }
-        if (ArrayUtil.isEmpty(leadIds)) {
+        if (IterUtil.isEmpty(leadIds)) {
             throw new UserException("认领的线索不能为空");
         }
         for (Long leadId : leadIds) {
@@ -256,7 +257,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
                 ContactInfoBo contactInfoBo = new ContactInfoBo();
                 contactInfoBo.setCustomerId(leadId);
                 List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
-                if (ArrayUtil.isNotEmpty(voList)) {
+                if (IterUtil.isNotEmpty(voList)) {
                     voList.forEach(vo -> {
                         CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
                         // 设置联系人信息的 归属用户 与 归属部门
