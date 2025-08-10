@@ -73,9 +73,9 @@ public class OpportunityOrderItemVo implements Serializable {
     private Long goodsSnapshotId;
 
     /**
-     * 商品快照ID
+     * 商品SKU_ID
      */
-    @ExcelProperty(value = "商品快照ID")
+    @ExcelProperty(value = "商品SKU_ID")
     private Long skuId;
 
     /**

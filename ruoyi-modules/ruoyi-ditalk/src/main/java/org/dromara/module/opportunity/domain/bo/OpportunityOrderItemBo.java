@@ -59,9 +59,9 @@ public class OpportunityOrderItemBo extends BaseEntity {
     private Long goodsSnapshotId;
 
     /**
-     * 商品快照ID
+     * 商品SKU_ID
      */
-    @NotNull(message = "商品快照ID不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "商品SKU_ID不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long skuId;
 
     /**

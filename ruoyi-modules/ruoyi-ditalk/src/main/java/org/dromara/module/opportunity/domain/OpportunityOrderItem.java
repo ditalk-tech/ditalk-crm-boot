@@ -62,7 +62,7 @@ public class OpportunityOrderItem extends TenantEntity {
     private Long goodsSnapshotId;
 
     /**
-     * 商品快照ID
+     * 商品SKU_ID
      */
     private Long skuId;
 
