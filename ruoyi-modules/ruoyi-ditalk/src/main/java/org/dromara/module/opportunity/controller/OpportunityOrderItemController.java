@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.common.core.exception.user.UserException;
 import org.dromara.handler.IOpportunityOrderItemHandler;
+import org.dromara.module.customer.domain.vo.CustomerInfoVo;
+import org.dromara.module.customer.service.ICustomerInfoService;
 import org.dromara.module.opportunity.domain.bo.OpportunityOrderItemTinyBo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
@@ -38,6 +41,7 @@ public class OpportunityOrderItemController extends BaseController {
 
     private final IOpportunityOrderItemService opportunityOrderItemService;
     private final IOpportunityOrderItemHandler opportunityOrderItemHandler;
+    private final ICustomerInfoService customerInfoService;
 
     /**
      * 查询商机商品列表
@@ -45,6 +49,9 @@ public class OpportunityOrderItemController extends BaseController {
     @SaCheckPermission("opportunity:orderItem:list")
     @GetMapping("/list")
     public TableDataInfo<OpportunityOrderItemVo> list(OpportunityOrderItemBo bo, PageQuery pageQuery) {
+        if (bo.getCustomerId() == null) {
+            throw new UserException("请先指定客户");
+        }
         return opportunityOrderItemService.queryPageList(bo, pageQuery);
     }
 
@@ -55,6 +62,9 @@ public class OpportunityOrderItemController extends BaseController {
     @Log(title = "商机商品", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(OpportunityOrderItemBo bo, HttpServletResponse response) {
+        if (bo.getCustomerId() == null) {
+            throw new UserException("请先指定客户");
+        }
         List<OpportunityOrderItemVo> list = opportunityOrderItemService.queryList(bo);
         ExcelUtil.exportExcel(list, "商机商品", OpportunityOrderItemVo.class, response);
     }
@@ -68,7 +78,14 @@ public class OpportunityOrderItemController extends BaseController {
     @GetMapping("/{id}")
     public R<OpportunityOrderItemVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
-        return R.ok(opportunityOrderItemService.queryById(id));
+        OpportunityOrderItemVo vo = opportunityOrderItemService.queryById(id);
+        if (vo != null && vo.getCustomerId() != null) {
+            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(vo.getCustomerId());
+            if (customerInfoVo == null) {
+                return R.fail("未找到数据");
+            }
+        }
+        return R.ok(vo);
     }
 
 //    /**
@@ -103,6 +120,16 @@ public class OpportunityOrderItemController extends BaseController {
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
+        for (Long id : ids) {
+            OpportunityOrderItemVo vo = opportunityOrderItemService.queryById(id);
+            if (vo == null || vo.getCustomerId() == null) {
+                throw new UserException("删除操作失败，记录不存在");
+            }
+            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(vo.getCustomerId());
+            if (customerInfoVo == null) {
+                throw new UserException("删除操作失败，找不到数据");
+            }
+        }
         return toAjax(opportunityOrderItemService.deleteWithValidByIds(List.of(ids), true));
     }
 
