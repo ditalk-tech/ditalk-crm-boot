@@ -52,6 +52,12 @@ public class OpportunityOrderItemController extends BaseController {
         if (bo.getCustomerId() == null) {
             throw new UserException("请先指定客户");
         }
+        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
+        if (customerInfoVo == null) {
+            TableDataInfo<OpportunityOrderItemVo> build = TableDataInfo.build();
+            build.setRows(List.of());
+            return build;
+        }
         return opportunityOrderItemService.queryPageList(bo, pageQuery);
     }
 
@@ -64,6 +70,10 @@ public class OpportunityOrderItemController extends BaseController {
     public void export(OpportunityOrderItemBo bo, HttpServletResponse response) {
         if (bo.getCustomerId() == null) {
             throw new UserException("请先指定客户");
+        }
+        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
+        if (customerInfoVo == null) {
+            throw new UserException("结果为空，无数据导出");
         }
         List<OpportunityOrderItemVo> list = opportunityOrderItemService.queryList(bo);
         ExcelUtil.exportExcel(list, "商机商品", OpportunityOrderItemVo.class, response);

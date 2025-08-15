@@ -82,7 +82,7 @@ public class CustomerActivityController extends BaseController {
         }
         CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
-            throw new UserException("活动记录为空，无数据导出");
+            throw new UserException("结果为空，无数据导出");
         }
         List<CustomerActivityVo> list = customerActivityService.queryList(bo);
         ExcelUtil.exportExcel(list, "客户活动记录", CustomerActivityVo.class, response);
