@@ -43,7 +43,6 @@ public class ConfigInfoVo implements Serializable {
     /**
      * 乐观锁
      */
-    @ExcelProperty(value = "乐观锁")
     private Long version;
 
     /**
