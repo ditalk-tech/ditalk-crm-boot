@@ -2,14 +2,10 @@ package org.dromara.module.goods.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
-import org.dromara.common.core.validate.AddGroup;
-import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.common.idempotent.annotation.RepeatSubmit;
 import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.PageQuery;
@@ -69,39 +65,39 @@ public class GoodsSkuController extends BaseController {
         return R.ok(goodsSkuService.queryById(id));
     }
 
-    /**
-     * 新增商品SKU
-     */
-    @SaCheckPermission("goods:sku:add")
-    @Log(title = "商品SKU", businessType = BusinessType.INSERT)
-    @RepeatSubmit()
-    @PostMapping()
-    public R<Void> add(@Validated(AddGroup.class) @RequestBody GoodsSkuBo bo) {
-        return toAjax(goodsSkuService.insertByBo(bo));
-    }
+//    /**
+//     * 新增商品SKU
+//     */
+//    @SaCheckPermission("goods:sku:add")
+//    @Log(title = "商品SKU", businessType = BusinessType.INSERT)
+//    @RepeatSubmit()
+//    @PostMapping()
+//    public R<Void> add(@Validated(AddGroup.class) @RequestBody GoodsSkuBo bo) {
+//        return toAjax(goodsSkuService.insertByBo(bo));
+//    }
 
-    /**
-     * 修改商品SKU
-     */
-    @SaCheckPermission("goods:sku:edit")
-    @Log(title = "商品SKU", businessType = BusinessType.UPDATE)
-    @RepeatSubmit()
-    @PutMapping()
-    public R<Void> edit(@Validated(EditGroup.class) @RequestBody GoodsSkuBo bo) {
-        return toAjax(goodsSkuService.updateByBo(bo));
-    }
+//    /**
+//     * 修改商品SKU
+//     */
+//    @SaCheckPermission("goods:sku:edit")
+//    @Log(title = "商品SKU", businessType = BusinessType.UPDATE)
+//    @RepeatSubmit()
+//    @PutMapping()
+//    public R<Void> edit(@Validated(EditGroup.class) @RequestBody GoodsSkuBo bo) {
+//        return toAjax(goodsSkuService.updateByBo(bo));
+//    }
 
-    /**
-     * 删除商品SKU
-     *
-     * @param ids 主键串
-     */
-    @SaCheckPermission("goods:sku:remove")
-    @Log(title = "商品SKU", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{ids}")
-    public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
-        return toAjax(goodsSkuService.deleteWithValidByIds(List.of(ids), true));
-    }
+//    /**
+//     * 删除商品SKU
+//     *
+//     * @param ids 主键串
+//     */
+//    @SaCheckPermission("goods:sku:remove")
+//    @Log(title = "商品SKU", businessType = BusinessType.DELETE)
+//    @DeleteMapping("/{ids}")
+//    public R<Void> remove(@NotEmpty(message = "主键不能为空")
+//                          @PathVariable Long[] ids) {
+//        return toAjax(goodsSkuService.deleteWithValidByIds(List.of(ids), true));
+//    }
 
 }
