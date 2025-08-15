@@ -4,6 +4,7 @@ import cn.hutool.core.collection.IterUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.dromara.common.core.exception.user.UserException;
 import org.dromara.common.core.utils.ValidatorUtils;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
@@ -77,9 +78,12 @@ public class OpportunityOrderItemHandlerImpl implements IOpportunityOrderItemHan
     }
 
     private OpportunityOrderItemBo buildOrderItemBo(OpportunityOrderItemTinyBo bo) {
-        OpportunityInfoVo opportunityInfoVo = opportunityInfoService.queryById(bo.getOpportunityId());
         GoodsSkuVo goodsSkuVo = goodsSkuService.queryById(bo.getSkuId());
+        if (goodsSkuVo == null) throw new UserException("商品SKU不存在");
+        OpportunityInfoVo opportunityInfoVo = opportunityInfoService.queryById(bo.getOpportunityId());
+        if (opportunityInfoVo == null) throw new UserException("商机信息不存在");
         GoodsInfoSnapshotVo goodsInfoSnapshotVo = goodsInfoSnapshotService.queryLastByGoodsId(goodsSkuVo.getGoodsId());
+        if (goodsInfoSnapshotVo == null) throw new UserException("商品信息不存在");
         OpportunityOrderItemBo itemBo = new OpportunityOrderItemBo();
         if (bo.getId() != null) {
             itemBo.setId(bo.getId());
