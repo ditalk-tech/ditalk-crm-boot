@@ -2,6 +2,7 @@ package org.dromara.module.opportunity.controller;
 
 import java.util.List;
 
+import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
@@ -9,6 +10,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.dromara.common.core.exception.user.UserException;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
 import org.dromara.module.customer.service.ICustomerInfoService;
+import org.dromara.module.opportunity.domain.vo.OpportunityInfoOptionVo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -39,6 +41,23 @@ public class OpportunityInfoController extends BaseController {
 
     private final IOpportunityInfoService opportunityInfoService;
     private final ICustomerInfoService customerInfoService;
+
+    /**
+     * 商机信息选项列表
+     */
+    @SaCheckPermission("opportunity:info:list")
+    @GetMapping("/list/option")
+    public R<List<OpportunityInfoOptionVo>> listOption(OpportunityInfoBo bo) {
+        if (bo.getCustomerId() == null) {
+            throw new UserException("请先指定客户");
+        }
+        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
+        if (customerInfoVo == null) {
+            throw new UserException("活动记录为空，无数据导出");
+        }
+        List<OpportunityInfoVo> infoVos = opportunityInfoService.queryList(bo);
+        return R.ok(BeanUtil.copyToList(infoVos, OpportunityInfoOptionVo.class));
+    }
 
     /**
      * 查询商机信息列表
