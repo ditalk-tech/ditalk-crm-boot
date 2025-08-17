@@ -1,6 +1,8 @@
 package org.dromara.module.contract.domain.vo;
 
 import java.util.Date;
+
+import org.dromara.common.core.domain.dto.OssDTO;
 import org.dromara.module.contract.domain.ContractInfo;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
@@ -11,7 +13,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-
+import java.util.List;
 
 
 /**
@@ -130,11 +132,15 @@ public class ContractInfoVo implements Serializable {
     private String terms;
 
     /**
+     * 附件OSS信息列表
+     */
+    private List<OssDTO> termOss;
+
+    /**
      * 状态
      */
     @ExcelProperty(value = "状态", converter = ExcelDictConvert.class)
     @ExcelDictFormat(dictType = "ditalk_contract_state")
     private String state;
-
 
 }

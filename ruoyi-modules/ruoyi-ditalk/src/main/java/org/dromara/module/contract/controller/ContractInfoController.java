@@ -2,10 +2,13 @@ package org.dromara.module.contract.controller;
 
 import java.util.List;
 
+import cn.hutool.core.collection.IterUtil;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.common.core.domain.dto.OssDTO;
+import org.dromara.common.core.service.OssService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -35,6 +38,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class ContractInfoController extends BaseController {
 
     private final IContractInfoService contractInfoService;
+    private final OssService ossService;
 
     /**
      * 查询合同信息列表
@@ -42,7 +46,14 @@ public class ContractInfoController extends BaseController {
     @SaCheckPermission("contract:info:list")
     @GetMapping("/list")
     public TableDataInfo<ContractInfoVo> list(ContractInfoBo bo, PageQuery pageQuery) {
-        return contractInfoService.queryPageList(bo, pageQuery);
+        TableDataInfo<ContractInfoVo> tableDataInfo = contractInfoService.queryPageList(bo, pageQuery);
+        if (IterUtil.isNotEmpty(tableDataInfo.getRows())) {
+            tableDataInfo.getRows().forEach(row -> {
+                List<OssDTO> ossDtos = ossService.selectByIds(row.getTerms());
+                row.setTermOss(ossDtos);
+            });
+        }
+        return tableDataInfo;
     }
 
     /**
