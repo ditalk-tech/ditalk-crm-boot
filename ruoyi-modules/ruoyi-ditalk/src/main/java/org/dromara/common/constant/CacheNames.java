@@ -43,4 +43,5 @@ public interface CacheNames {
     String CustomerActivity = PREFIX + "CustomerActivity#7d";
     String GoodsInfoSnapshot = PREFIX + "GoodsInfoSnapshot#7d";
     String OpportunityOrderItem = "OpportunityOrderItem#7d";
+    String ContractInfo = "ContractInfo#7d";
 }
