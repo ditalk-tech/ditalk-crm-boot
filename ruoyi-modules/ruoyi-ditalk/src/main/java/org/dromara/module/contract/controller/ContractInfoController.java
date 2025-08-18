@@ -9,6 +9,7 @@ import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.dromara.common.core.domain.dto.OssDTO;
 import org.dromara.common.core.service.OssService;
+import org.dromara.handler.IContractInfoHandler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -38,6 +39,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class ContractInfoController extends BaseController {
 
     private final IContractInfoService contractInfoService;
+    private final IContractInfoHandler contractInfoHandler;
     private final OssService ossService;
 
     /**
@@ -87,7 +89,7 @@ public class ContractInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody ContractInfoBo bo) {
-        return toAjax(contractInfoService.insertByBo(bo));
+        return toAjax(contractInfoHandler.add(bo));
     }
 
     /**
@@ -98,7 +100,7 @@ public class ContractInfoController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody ContractInfoBo bo) {
-        return toAjax(contractInfoService.updateByBo(bo));
+        return toAjax(contractInfoHandler.edit(bo));
     }
 
     /**
