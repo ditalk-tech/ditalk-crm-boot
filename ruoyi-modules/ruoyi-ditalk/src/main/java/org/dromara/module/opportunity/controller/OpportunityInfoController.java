@@ -48,13 +48,6 @@ public class OpportunityInfoController extends BaseController {
     @SaCheckPermission("opportunity:info:list")
     @GetMapping("/list/option")
     public R<List<OpportunityInfoOptionVo>> listOption(OpportunityInfoBo bo) {
-        if (bo.getCustomerId() == null) {
-            throw new UserException("请先指定客户");
-        }
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
-        if (customerInfoVo == null) {
-            throw new UserException("活动记录为空，无数据导出");
-        }
         List<OpportunityInfoVo> infoVos = opportunityInfoService.queryList(bo);
         return R.ok(BeanUtil.copyToList(infoVos, OpportunityInfoOptionVo.class));
     }
@@ -65,15 +58,6 @@ public class OpportunityInfoController extends BaseController {
     @SaCheckPermission("opportunity:info:list")
     @GetMapping("/list")
     public TableDataInfo<OpportunityInfoVo> list(OpportunityInfoBo bo, PageQuery pageQuery) {
-        if (bo.getCustomerId() == null) {
-            throw new UserException("请先指定客户");
-        }
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
-        if (customerInfoVo == null) {
-            TableDataInfo<OpportunityInfoVo> build = TableDataInfo.build();
-            build.setRows(List.of());
-            return build;
-        }
         return opportunityInfoService.queryPageList(bo, pageQuery);
     }
 
@@ -84,13 +68,6 @@ public class OpportunityInfoController extends BaseController {
     @Log(title = "商机信息", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(OpportunityInfoBo bo, HttpServletResponse response) {
-        if (bo.getCustomerId() == null) {
-            throw new UserException("请先指定客户");
-        }
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
-        if (customerInfoVo == null) {
-            throw new UserException("活动记录为空，无数据导出");
-        }
         List<OpportunityInfoVo> list = opportunityInfoService.queryList(bo);
         ExcelUtil.exportExcel(list, "商机信息", OpportunityInfoVo.class, response);
     }
@@ -105,12 +82,6 @@ public class OpportunityInfoController extends BaseController {
     public R<OpportunityInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
         OpportunityInfoVo opportunityInfoVo = opportunityInfoService.queryById(id);
-        if (opportunityInfoVo != null && opportunityInfoVo.getCustomerId() != null) {
-            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(opportunityInfoVo.getCustomerId());
-            if (customerInfoVo == null) {
-                return R.fail("未找到对应的客户活动记录");
-            }
-        }
         return R.ok(opportunityInfoVo);
     }
 
@@ -137,10 +108,6 @@ public class OpportunityInfoController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody OpportunityInfoBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
-        if (customerInfoVo == null) {
-            throw new UserException("修改操作失败，客户不存在");
-        }
         return toAjax(opportunityInfoService.updateByBo(bo));
     }
 

@@ -92,6 +92,8 @@ public class OpportunityInfoServiceImpl implements IOpportunityInfoService {
         lqw.like(StringUtils.isNotBlank(bo.getTitle()), OpportunityInfo::getTitle, bo.getTitle());
         lqw.eq(bo.getCustomerId() != null, OpportunityInfo::getCustomerId, bo.getCustomerId());
         lqw.eq(bo.getOrderId() != null, OpportunityInfo::getOrderId, bo.getOrderId());
+        lqw.eq(bo.getAssignedTo() != null, OpportunityInfo::getAssignedTo, bo.getAssignedTo());
+        lqw.eq(bo.getAssignedDept() != null, OpportunityInfo::getAssignedDept, bo.getAssignedDept());
         lqw.between(params.get("beginCloseDate") != null && params.get("endCloseDate") != null,
             OpportunityInfo::getCloseDate, params.get("beginCloseDate"), params.get("endCloseDate"));
         lqw.eq(StringUtils.isNotBlank(bo.getState()), OpportunityInfo::getState, bo.getState());

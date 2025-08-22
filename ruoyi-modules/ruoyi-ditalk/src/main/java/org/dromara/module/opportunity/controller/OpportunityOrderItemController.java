@@ -11,6 +11,8 @@ import org.dromara.handler.IOpportunityOrderItemHandler;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
 import org.dromara.module.customer.service.ICustomerInfoService;
 import org.dromara.module.opportunity.domain.bo.OpportunityOrderItemTinyBo;
+import org.dromara.module.opportunity.domain.vo.OpportunityInfoVo;
+import org.dromara.module.opportunity.service.IOpportunityInfoService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -40,8 +42,8 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class OpportunityOrderItemController extends BaseController {
 
     private final IOpportunityOrderItemService opportunityOrderItemService;
+    private final IOpportunityInfoService opportunityInfoService;
     private final IOpportunityOrderItemHandler opportunityOrderItemHandler;
-    private final ICustomerInfoService customerInfoService;
 
     /**
      * 查询商机商品列表
@@ -49,14 +51,8 @@ public class OpportunityOrderItemController extends BaseController {
     @SaCheckPermission("opportunity:orderItem:list")
     @GetMapping("/list")
     public TableDataInfo<OpportunityOrderItemVo> list(OpportunityOrderItemBo bo, PageQuery pageQuery) {
-        if (bo.getCustomerId() == null) {
-            throw new UserException("请先指定客户");
-        }
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
-        if (customerInfoVo == null) {
-            TableDataInfo<OpportunityOrderItemVo> build = TableDataInfo.build();
-            build.setRows(List.of());
-            return build;
+        if (bo.getOpportunityId() == null) {
+            throw new UserException("必先指定商机");
         }
         return opportunityOrderItemService.queryPageList(bo, pageQuery);
     }
@@ -68,12 +64,8 @@ public class OpportunityOrderItemController extends BaseController {
     @Log(title = "商机商品", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(OpportunityOrderItemBo bo, HttpServletResponse response) {
-        if (bo.getCustomerId() == null) {
-            throw new UserException("请先指定客户");
-        }
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
-        if (customerInfoVo == null) {
-            throw new UserException("结果为空，无数据导出");
+        if (bo.getOpportunityId() == null) {
+            throw new UserException("必先指定商机");
         }
         List<OpportunityOrderItemVo> list = opportunityOrderItemService.queryList(bo);
         ExcelUtil.exportExcel(list, "商机商品", OpportunityOrderItemVo.class, response);
@@ -89,9 +81,9 @@ public class OpportunityOrderItemController extends BaseController {
     public R<OpportunityOrderItemVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
         OpportunityOrderItemVo vo = opportunityOrderItemService.queryById(id);
-        if (vo != null && vo.getCustomerId() != null) {
-            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(vo.getCustomerId());
-            if (customerInfoVo == null) {
+        if (vo != null && vo.getOpportunityId() != null) {
+            OpportunityInfoVo infoVo = opportunityInfoService.queryById(vo.getOpportunityId());
+            if (infoVo == null) {
                 return R.fail("未找到数据");
             }
         }
@@ -135,9 +127,9 @@ public class OpportunityOrderItemController extends BaseController {
             if (vo == null || vo.getCustomerId() == null) {
                 throw new UserException("删除操作失败，记录不存在");
             }
-            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(vo.getCustomerId());
-            if (customerInfoVo == null) {
-                throw new UserException("删除操作失败，找不到数据");
+            OpportunityInfoVo infoVo = opportunityInfoService.queryById(vo.getOpportunityId());
+            if (infoVo == null) {
+                return R.fail("删除操作失败，未找到数据");
             }
         }
         return toAjax(opportunityOrderItemService.deleteWithValidByIds(List.of(ids), true));

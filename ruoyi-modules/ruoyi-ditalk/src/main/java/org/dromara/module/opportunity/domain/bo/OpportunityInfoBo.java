@@ -71,5 +71,14 @@ public class OpportunityInfoBo extends BaseEntity {
     @NotBlank(message = "商机阶段不能为空", groups = { AddGroup.class, EditGroup.class })
     private String state;
 
+    /**
+     * 分配到
+     */
+    private Long assignedTo;
+
+    /**
+     * 分配部门
+     */
+    private Long assignedDept;
 
 }

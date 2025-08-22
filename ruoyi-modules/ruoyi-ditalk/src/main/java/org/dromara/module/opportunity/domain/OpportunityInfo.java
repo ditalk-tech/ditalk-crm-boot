@@ -75,5 +75,14 @@ public class OpportunityInfo extends TenantEntity {
      */
     private String state;
 
+    /**
+     * 分配到
+     */
+    private Long assignedTo;
+
+    /**
+     * 分配部门
+     */
+    private Long assignedDept;
 
 }

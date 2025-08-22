@@ -88,5 +88,16 @@ public class OpportunityInfoVo implements Serializable {
     @ExcelDictFormat(dictType = "ditalk_opportunity_state")
     private String state;
 
+    /**
+     * 分配到
+     */
+    @ExcelProperty(value = "分配到")
+    private Long assignedTo;
+
+    /**
+     * 分配部门
+     */
+    @ExcelProperty(value = "分配部门")
+    private Long assignedDept;
 
 }
