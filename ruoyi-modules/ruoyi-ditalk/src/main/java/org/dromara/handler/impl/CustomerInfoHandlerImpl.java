@@ -19,11 +19,21 @@ import org.dromara.module.contact.domain.bo.ContactInfoBo;
 import org.dromara.module.contact.domain.vo.ContactInfoVo;
 import org.dromara.module.contact.mapper.ContactInfoMapper;
 import org.dromara.module.contact.service.IContactInfoService;
+import org.dromara.module.contract.domain.ContractInfo;
+import org.dromara.module.contract.domain.bo.ContractInfoBo;
+import org.dromara.module.contract.domain.vo.ContractInfoVo;
+import org.dromara.module.contract.mapper.ContractInfoMapper;
+import org.dromara.module.contract.service.IContractInfoService;
 import org.dromara.module.customer.domain.CustomerInfo;
 import org.dromara.module.customer.domain.bo.CustomerInfoBo;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
 import org.dromara.module.customer.mapper.CustomerInfoMapper;
 import org.dromara.module.customer.service.ICustomerInfoService;
+import org.dromara.module.opportunity.domain.OpportunityInfo;
+import org.dromara.module.opportunity.domain.bo.OpportunityInfoBo;
+import org.dromara.module.opportunity.domain.vo.OpportunityInfoVo;
+import org.dromara.module.opportunity.mapper.OpportunityInfoMapper;
+import org.dromara.module.opportunity.service.IOpportunityInfoService;
 import org.dromara.system.domain.vo.SysUserVo;
 import org.dromara.system.service.ISysUserService;
 import org.springframework.stereotype.Service;
@@ -44,9 +54,13 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
 
     private final ICustomerInfoService customerInfoService;
     private final IContactInfoService contactInfoService;
+    private final IOpportunityInfoService opportunityInfoService;
+    private final IContractInfoService contractInfoService;
     private final ISysUserService sysUserService;
     private final CustomerInfoMapper customerInfoMapper;
     private final ContactInfoMapper contactInfoMapper;
+    private final OpportunityInfoMapper opportunityInfoMapper;
+    private final ContractInfoMapper contractInfoMapper;
 
     @Override
     @DSTransactional
@@ -102,8 +116,8 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
                 .set(CustomerInfo::getUpdateTime, new Date())
                 .eq(CustomerInfo::getId, customerId)
                 .eq(CustomerInfo::getVersion, customerInfoVo.getVersion());
-            Boolean flag = customerInfoMapper.update(null, wrapper) > 0;
-            if (!flag) {
+            Boolean updateFlag = customerInfoMapper.update(null, wrapper) > 0;
+            if (!updateFlag) {
                 throw new UserException("回收客户信息失败");
             }
             // 回收客户的联系人
@@ -122,9 +136,53 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
                         .set(ContactInfo::getUpdateTime, new Date())
                         .eq(ContactInfo::getId, vo.getId())
                         .eq(ContactInfo::getVersion, vo.getVersion());
-                    Boolean contactFlag = contactInfoMapper.update(null, wrapperContact) > 0;
-                    if (!contactFlag) {
+                    Boolean flag = contactInfoMapper.update(null, wrapperContact) > 0;
+                    if (!flag) {
                         throw new UserException("回收联系人信息失败");
+                    }
+                });
+            }
+            // 回收客户的商机
+            OpportunityInfoBo opportunityInfoBo = new OpportunityInfoBo();
+            opportunityInfoBo.setCustomerId(customerId);
+            List<OpportunityInfoVo> opportunityInfoVoList = DataPermissionHelper.ignore(() -> opportunityInfoService.queryList(opportunityInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
+            if (IterUtil.isNotEmpty(opportunityInfoVoList)) {
+                opportunityInfoVoList.forEach(vo -> {
+                    CacheUtils.evict(CacheNames.OpportunityInfo, vo.getId()); // 清除商机缓存
+                    // 设置商机信息的 归属用户 与 归属部门 为空
+                    LambdaUpdateWrapper wrapperContact = new LambdaUpdateWrapper<OpportunityInfo>()
+                        .set(OpportunityInfo::getAssignedTo, null)
+                        .set(OpportunityInfo::getAssignedDept, null)
+                        .set(OpportunityInfo::getVersion, vo.getVersion() + 1)
+                        .set(OpportunityInfo::getUpdateBy, LoginHelper.getUserId())
+                        .set(OpportunityInfo::getUpdateTime, new Date())
+                        .eq(OpportunityInfo::getId, vo.getId())
+                        .eq(OpportunityInfo::getVersion, vo.getVersion());
+                    Boolean flag = opportunityInfoMapper.update(null, wrapperContact) > 0;
+                    if (!flag) {
+                        throw new UserException("回收商机信息失败");
+                    }
+                });
+            }
+            // 回收客户的合同
+            ContractInfoBo contractInfoBo = new ContractInfoBo();
+            contractInfoBo.setCustomerId(customerId);
+            List<ContractInfoVo> contractInfoVoList = DataPermissionHelper.ignore(() -> contractInfoService.queryList(contractInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
+            if (IterUtil.isNotEmpty(contractInfoVoList)) {
+                contractInfoVoList.forEach(vo -> {
+                    CacheUtils.evict(CacheNames.ContractInfo, vo.getId()); // 清除合同缓存
+                    // 设置合同信息的 归属用户 与 归属部门 为空
+                    LambdaUpdateWrapper wrapperContact = new LambdaUpdateWrapper<ContractInfo>()
+                        .set(ContractInfo::getAssignedTo, null)
+                        .set(ContractInfo::getAssignedDept, null)
+                        .set(ContractInfo::getVersion, vo.getVersion() + 1)
+                        .set(ContractInfo::getUpdateBy, LoginHelper.getUserId())
+                        .set(ContractInfo::getUpdateTime, new Date())
+                        .eq(ContractInfo::getId, vo.getId())
+                        .eq(ContractInfo::getVersion, vo.getVersion());
+                    Boolean flag = contractInfoMapper.update(null, wrapperContact) > 0;
+                    if (!flag) {
+                        throw new UserException("回收合同信息失败");
                     }
                 });
             }
@@ -156,27 +214,65 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             customerInfoBo.setAssignedTo(userId);
             customerInfoBo.setAssignedDept(sysUserVo.getDeptId());
             customerInfoBo.setVersion(customerInfoVo.getVersion());
-            Boolean flag = customerInfoService.updateByBo(customerInfoBo);
-            if (!flag) {
+            Boolean updateFlag = customerInfoService.updateByBo(customerInfoBo);
+            if (!updateFlag) {
                 throw new UserException("转移客户信息失败");
             }
-            // 转移客户的联系人
-            ContactInfoBo contactInfoBo = new ContactInfoBo();
-            contactInfoBo.setCustomerId(customerId);
             DataPermissionHelper.ignore(() -> {  // !!! 这里忽略数据权限校验，因为是回收操作，有客户权限就有权回收对应联系人
+                // 转移客户的联系人
+                ContactInfoBo contactInfoBo = new ContactInfoBo();
+                contactInfoBo.setCustomerId(customerId);
                 List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
                 if (IterUtil.isNotEmpty(voList)) {
                     voList.forEach(vo -> {
                         CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
                         // 设置联系人信息的 归属用户 与 归属部门
-                        ContactInfoBo contactBo = new ContactInfoBo();
-                        contactBo.setId(vo.getId());
-                        contactBo.setAssignedTo(userId);
-                        contactBo.setAssignedDept(sysUserVo.getDeptId());
-                        contactBo.setVersion(vo.getVersion());
-                        Boolean contactFlag = contactInfoService.updateByBo(contactBo);
-                        if (!contactFlag) {
+                        ContactInfoBo infoBo = new ContactInfoBo();
+                        infoBo.setId(vo.getId());
+                        infoBo.setAssignedTo(userId);
+                        infoBo.setAssignedDept(sysUserVo.getDeptId());
+                        infoBo.setVersion(vo.getVersion());
+                        Boolean flag = contactInfoService.updateByBo(infoBo);
+                        if (!flag) {
                             throw new UserException("转移联系人信息失败");
+                        }
+                    });
+                }
+                // 转移客户的商机
+                OpportunityInfoBo opportunityInfoBo = new OpportunityInfoBo();
+                opportunityInfoBo.setCustomerId(customerId);
+                List<OpportunityInfoVo> opportunityInfoVoList = opportunityInfoService.queryList(opportunityInfoBo);
+                if (IterUtil.isNotEmpty(opportunityInfoVoList)) {
+                    opportunityInfoVoList.forEach(vo -> {
+                        CacheUtils.evict(CacheNames.OpportunityInfo, vo.getId()); // 清除商机缓存
+                        // 设置商机信息的 归属用户 与 归属部门
+                        OpportunityInfoBo infoBo = new OpportunityInfoBo();
+                        infoBo.setId(vo.getId());
+                        infoBo.setAssignedTo(userId);
+                        infoBo.setAssignedDept(sysUserVo.getDeptId());
+                        infoBo.setVersion(vo.getVersion());
+                        Boolean flag = opportunityInfoService.updateByBo(infoBo);
+                        if (!flag) {
+                            throw new UserException("转移商机信息失败");
+                        }
+                    });
+                }
+                // 转移客户的合同
+                ContractInfoBo contractInfoBo = new ContractInfoBo();
+                contractInfoBo.setCustomerId(customerId);
+                List<ContractInfoVo> contractInfoVoList = contractInfoService.queryList(contractInfoBo);
+                if (IterUtil.isNotEmpty(contractInfoVoList)) {
+                    contractInfoVoList.forEach(vo -> {
+                        CacheUtils.evict(CacheNames.ContractInfo, vo.getId()); // 清除合同缓存
+                        // 设置合同信息的 归属用户 与 归属部门
+                        ContractInfoBo infoBo = new ContractInfoBo();
+                        infoBo.setId(vo.getId());
+                        infoBo.setAssignedTo(userId);
+                        infoBo.setAssignedDept(sysUserVo.getDeptId());
+                        infoBo.setVersion(vo.getVersion());
+                        Boolean flag = contractInfoService.updateByBo(infoBo);
+                        if (!flag) {
+                            throw new UserException("转移合同信息失败");
                         }
                     });
                 }
@@ -250,25 +346,61 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
                 customerInfoBo.setId(customerId);
                 customerInfoBo.setAssignedTo(userId);
                 customerInfoBo.setAssignedDept(deptId);
-                Boolean flag = customerInfoService.updateByBo(customerInfoBo);
-                if (!flag) {
+                Boolean updateFlag = customerInfoService.updateByBo(customerInfoBo);
+                if (!updateFlag) {
                     throw new UserException("认领客户信息失败");
                 }
                 // 认领客户的联系人
                 ContactInfoBo contactInfoBo = new ContactInfoBo();
                 contactInfoBo.setCustomerId(customerId);
-                List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
-                if (IterUtil.isNotEmpty(voList)) {
-                    voList.forEach(vo -> {
+                List<ContactInfoVo> contactInfoVoList = contactInfoService.queryList(contactInfoBo);
+                if (IterUtil.isNotEmpty(contactInfoVoList)) {
+                    contactInfoVoList.forEach(vo -> {
                         CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
                         // 设置联系人信息的 归属用户 与 归属部门
                         ContactInfoBo contactBo = new ContactInfoBo();
                         contactBo.setId(vo.getId());
                         contactBo.setAssignedTo(userId);
                         contactBo.setAssignedDept(deptId);
-                        Boolean contactFlag = contactInfoService.updateByBo(contactBo);
-                        if (!contactFlag) {
+                        Boolean flag = contactInfoService.updateByBo(contactBo);
+                        if (!flag) {
                             throw new UserException("认领联系人信息失败");
+                        }
+                    });
+                }
+                // 认领商机
+                OpportunityInfoBo opportunityInfoBo = new OpportunityInfoBo();
+                opportunityInfoBo.setCustomerId(customerId);
+                List<OpportunityInfoVo> opportunityInfoVoList = opportunityInfoService.queryList(opportunityInfoBo);
+                if (IterUtil.isNotEmpty(opportunityInfoVoList)) {
+                    opportunityInfoVoList.forEach(vo -> {
+                        CacheUtils.evict(CacheNames.OpportunityInfo, vo.getId()); // 清除商机缓存
+                        // 设置商机信息的 归属用户 与 归属部门
+                        OpportunityInfoBo opportunityBo = new OpportunityInfoBo();
+                        opportunityBo.setId(vo.getId());
+                        opportunityBo.setAssignedTo(userId);
+                        opportunityBo.setAssignedDept(deptId);
+                        Boolean flag = opportunityInfoService.updateByBo(opportunityBo);
+                        if (!flag) {
+                            throw new UserException("认领商机信息失败");
+                        }
+                    });
+                }
+                // 认领合同
+                ContractInfoBo contractInfoBo = new ContractInfoBo();
+                contractInfoBo.setCustomerId(customerId);
+                List<ContractInfoVo> contractInfoVoList = contractInfoService.queryList(contractInfoBo);
+                if (IterUtil.isNotEmpty(contractInfoVoList)) {
+                    contractInfoVoList.forEach(vo -> {
+                        CacheUtils.evict(CacheNames.ContractInfo, vo.getId()); // 清除合同缓存
+                        // 设置合同信息的 归属用户 与 归属部门
+                        ContractInfoBo contractBo = new ContractInfoBo();
+                        contractBo.setId(vo.getId());
+                        contractBo.setAssignedTo(userId);
+                        contractBo.setAssignedDept(deptId);
+                        Boolean flag = contractInfoService.updateByBo(contractBo);
+                        if (!flag) {
+                            throw new UserException("认领合同信息失败");
                         }
                     });
                 }
