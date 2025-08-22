@@ -41,7 +41,6 @@ public class CustomerTransferLogVo implements Serializable {
     /**
      * 乐观锁
      */
-    @ExcelProperty(value = "乐观锁")
     private Long version;
 
     /**
@@ -80,6 +79,5 @@ public class CustomerTransferLogVo implements Serializable {
     @ExcelProperty(value = "状态", converter = ExcelDictConvert.class)
     @ExcelDictFormat(dictType = "sys_normal_disable")
     private String state;
-
 
 }

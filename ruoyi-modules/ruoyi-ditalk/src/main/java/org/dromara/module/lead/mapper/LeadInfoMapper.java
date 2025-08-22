@@ -21,7 +21,6 @@ import java.util.List;
  */
 public interface LeadInfoMapper extends BaseMapperPlus<LeadInfo, LeadInfoVo> {
 
-
     @Override
     @DataPermission({
         @DataColumn(key = "deptName", value = "assigned_dept" ),

@@ -1,7 +1,6 @@
 package org.dromara.handler.impl;
 
 import cn.hutool.core.collection.IterUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -13,11 +12,9 @@ import org.dromara.common.core.exception.user.UserException;
 import org.dromara.common.mybatis.helper.DataPermissionHelper;
 import org.dromara.common.redis.utils.CacheUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
+import org.dromara.handler.ICustomerInfoCommonHandler;
 import org.dromara.handler.ILeadInfoHandler;
-import org.dromara.module.contact.domain.ContactInfo;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
-import org.dromara.module.contact.domain.vo.ContactInfoVo;
-import org.dromara.module.contact.mapper.ContactInfoMapper;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.lead.domain.LeadInfo;
 import org.dromara.module.lead.domain.bo.LeadInfoBo;
@@ -46,7 +43,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
     private final IContactInfoService contactInfoService;
     private final ISysUserService sysUserService;
     private final LeadInfoMapper leadInfoMapper;
-    private final ContactInfoMapper contactInfoMapper;
+    private final ICustomerInfoCommonHandler customerInfoCommonHandler;
 
     @Override
     @DSTransactional
@@ -101,32 +98,12 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
                 .set(LeadInfo::getUpdateTime, new Date())
                 .eq(LeadInfo::getId, leadId)
                 .eq(LeadInfo::getVersion, leadInfoVo.getVersion());
-            Boolean flag = leadInfoMapper.update(null, wrapper) > 0;
-            if (!flag) {
+            Boolean updateFlag = leadInfoMapper.update(null, wrapper) > 0;
+            if (!updateFlag) {
                 throw new UserException("回收线索信息失败");
             }
-            // 回收线索的联系人
-            ContactInfoBo contactInfoBo = new ContactInfoBo();
-            contactInfoBo.setCustomerId(leadId);
-            List<ContactInfoVo> voList = DataPermissionHelper.ignore(() -> contactInfoService.queryList(contactInfoBo)); // !!! 这里忽略数据权限校验，因为是回收操作，有线索权限就有权回收对应联系人
-            if (IterUtil.isNotEmpty(voList)) {
-                voList.forEach(vo -> {
-                    CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
-                    // 设置联系人信息的 归属用户 与 归属部门 为空
-                    LambdaUpdateWrapper wrapperContact = new LambdaUpdateWrapper<ContactInfo>()
-                        .set(ContactInfo::getAssignedTo, null)
-                        .set(ContactInfo::getAssignedDept, null)
-                        .set(ContactInfo::getVersion, vo.getVersion() + 1)
-                        .set(ContactInfo::getUpdateBy, LoginHelper.getUserId())
-                        .set(ContactInfo::getUpdateTime, new Date())
-                        .eq(ContactInfo::getId, vo.getId())
-                        .eq(ContactInfo::getVersion, vo.getVersion());
-                    Boolean contactFlag = contactInfoMapper.update(null, wrapperContact) > 0;
-                    if (!contactFlag) {
-                        throw new UserException("回收联系人信息失败");
-                    }
-                });
-            }
+            // 同时回收所在相关数据
+            customerInfoCommonHandler.reclaimById(leadId);
         }
         return true;
     }
@@ -159,27 +136,8 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
             if (!flag) {
                 throw new UserException("转移线索信息失败");
             }
-            // 转移线索的联系人
-            ContactInfoBo contactInfoBo = new ContactInfoBo();
-            contactInfoBo.setCustomerId(leadId);
-            DataPermissionHelper.ignore(() -> {  // !!! 这里忽略数据权限校验，因为是回收操作，有线索权限就有权回收对应联系人
-                List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
-                if (IterUtil.isNotEmpty(voList)) {
-                    voList.forEach(vo -> {
-                        CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
-                        // 设置联系人信息的 归属用户 与 归属部门
-                        ContactInfoBo contactBo = new ContactInfoBo();
-                        contactBo.setId(vo.getId());
-                        contactBo.setAssignedTo(userId);
-                        contactBo.setAssignedDept(sysUserVo.getDeptId());
-                        contactBo.setVersion(vo.getVersion());
-                        Boolean contactFlag = contactInfoService.updateByBo(contactBo);
-                        if (!contactFlag) {
-                            throw new UserException("转移联系人信息失败");
-                        }
-                    });
-                }
-            });
+            // 转移客户相关资源到指定用户
+            customerInfoCommonHandler.transfer(leadId, userId, sysUserVo.getDeptId());
         }
         return true;
     }
@@ -249,28 +207,12 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
                 leadInfoBo.setId(leadId);
                 leadInfoBo.setAssignedTo(userId);
                 leadInfoBo.setAssignedDept(deptId);
-                Boolean flag = leadInfoService.updateByBo(leadInfoBo);
-                if (!flag) {
+                Boolean updateFlag = leadInfoService.updateByBo(leadInfoBo);
+                if (!updateFlag) {
                     throw new UserException("认领线索信息失败");
                 }
-                // 认领线索的联系人
-                ContactInfoBo contactInfoBo = new ContactInfoBo();
-                contactInfoBo.setCustomerId(leadId);
-                List<ContactInfoVo> voList = contactInfoService.queryList(contactInfoBo);
-                if (IterUtil.isNotEmpty(voList)) {
-                    voList.forEach(vo -> {
-                        CacheUtils.evict(CacheNames.ContactInfo, vo.getId()); // 清除联系人缓存
-                        // 设置联系人信息的 归属用户 与 归属部门
-                        ContactInfoBo contactBo = new ContactInfoBo();
-                        contactBo.setId(vo.getId());
-                        contactBo.setAssignedTo(userId);
-                        contactBo.setAssignedDept(deptId);
-                        Boolean contactFlag = contactInfoService.updateByBo(contactBo);
-                        if (!contactFlag) {
-                            throw new UserException("认领联系人信息失败");
-                        }
-                    });
-                }
+                // 认领客户相关资源
+                customerInfoCommonHandler.claim(leadId, userId, deptId);
             });
         }
         return true;

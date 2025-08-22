@@ -99,13 +99,11 @@ public class ContractInfoBo extends BaseEntity {
     /**
      * 指派给
      */
-    @NotNull(message = "指派给不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long assignedTo;
 
     /**
      * 指派部门
      */
-    @NotNull(message = "指派部门不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long assignedDept;
 
     /**
