@@ -13,6 +13,7 @@ import org.dromara.common.mybatis.helper.DataPermissionHelper;
 import org.dromara.common.redis.utils.CacheUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.handler.ICustomerInfoCommonHandler;
+import org.dromara.handler.ICustomerTransferLogHandler;
 import org.dromara.handler.ILeadInfoHandler;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
 import org.dromara.module.contact.service.IContactInfoService;
@@ -44,6 +45,7 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
     private final ISysUserService sysUserService;
     private final LeadInfoMapper leadInfoMapper;
     private final ICustomerInfoCommonHandler customerInfoCommonHandler;
+    private final ICustomerTransferLogHandler customerTransferLogHandler;
 
     @Override
     @DSTransactional
@@ -87,8 +89,8 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
             if (leadInfoVo == null || leadInfoVo.getAssignedTo() == null) {
                 throw new UserException("线索不存在或已在线索池中");
             }
-            CacheUtils.evict(CacheNames.LeadInfo, leadId); // 清除缓存
-            CacheUtils.evict(CacheNames.CustomerInfo, leadId); // 清除缓存
+            // 记录客户转移日志
+            customerTransferLogHandler.add(leadId, null, null);
             // 设置客户的 归属用户 与 归属部门 为空
             LambdaUpdateWrapper wrapper = new LambdaUpdateWrapper<LeadInfo>()
                 .set(LeadInfo::getAssignedTo, null)
@@ -104,6 +106,9 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
             }
             // 同时回收所在相关数据
             customerInfoCommonHandler.reclaimById(leadId);
+            // 清除缓存
+            CacheUtils.evict(CacheNames.LeadInfo, leadId);
+            CacheUtils.evict(CacheNames.CustomerInfo, leadId);
         }
         return true;
     }
@@ -124,8 +129,8 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
             if (leadInfoVo == null) {
                 throw new UserException("线索信息不存在");
             }
-            CacheUtils.evict(CacheNames.LeadInfo, leadId); // 清除缓存
-            CacheUtils.evict(CacheNames.CustomerInfo, leadId); // 清除缓存
+            // 记录客户转移日志
+            customerTransferLogHandler.add(leadId, userId, sysUserVo.getDeptId());
             // 设置线索的 归属用户 与 归属部门
             LeadInfoBo leadInfoBo = new LeadInfoBo();
             leadInfoBo.setId(leadId);
@@ -138,6 +143,9 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
             }
             // 转移客户相关资源到指定用户
             customerInfoCommonHandler.transfer(leadId, userId, sysUserVo.getDeptId());
+            // 清除缓存
+            CacheUtils.evict(CacheNames.LeadInfo, leadId);
+            CacheUtils.evict(CacheNames.CustomerInfo, leadId);
         }
         return true;
     }
@@ -194,10 +202,10 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
             throw new UserException("认领的线索不能为空");
         }
         for (Long leadId : leadIds) {
+            // 记录客户转移日志
+            customerTransferLogHandler.add(leadId, userId, deptId);
             // 认领线索
             DataPermissionHelper.ignore(() -> {
-                CacheUtils.evict(CacheNames.LeadInfo, leadId); // 清除缓存
-                CacheUtils.evict(CacheNames.CustomerInfo, leadId); // 清除缓存
                 LeadInfoVo leadInfoVo = leadInfoService.queryById(leadId);
                 if (leadInfoVo == null || leadInfoVo.getAssignedTo() != null) {
                     throw new UserException("线索不存在或已被认领");
@@ -214,6 +222,9 @@ public class LeadInfoHandlerImpl implements ILeadInfoHandler {
                 // 认领客户相关资源
                 customerInfoCommonHandler.claim(leadId, userId, deptId);
             });
+            // 清除缓存
+            CacheUtils.evict(CacheNames.LeadInfo, leadId);
+            CacheUtils.evict(CacheNames.CustomerInfo, leadId);
         }
         return true;
     }

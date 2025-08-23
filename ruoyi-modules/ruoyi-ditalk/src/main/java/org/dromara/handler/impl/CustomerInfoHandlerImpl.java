@@ -14,6 +14,7 @@ import org.dromara.common.redis.utils.CacheUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.handler.ICustomerInfoCommonHandler;
 import org.dromara.handler.ICustomerInfoHandler;
+import org.dromara.handler.ICustomerTransferLogHandler;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.customer.domain.CustomerInfo;
@@ -44,6 +45,7 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
     private final ISysUserService sysUserService;
     private final CustomerInfoMapper customerInfoMapper;
     private final ICustomerInfoCommonHandler customerInfoCommonHandler;
+    private final ICustomerTransferLogHandler customerTransferLogHandler;
 
     @Override
     @DSTransactional
@@ -88,8 +90,8 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             if (customerInfoVo == null || customerInfoVo.getAssignedTo() == null) {
                 throw new UserException("客户不存在或已在客户公海中");
             }
-            CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
-            CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
+            // 记录客户转移日志
+            customerTransferLogHandler.add(customerId, null, null);
             // 设置客户的 归属用户 与 归属部门 为空
             LambdaUpdateWrapper wrapper = new LambdaUpdateWrapper<CustomerInfo>()
                 .set(CustomerInfo::getAssignedTo, null)
@@ -105,6 +107,9 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             }
             // 回收客户相关资源
             customerInfoCommonHandler.reclaimById(customerId);
+            // 清除缓存
+            CacheUtils.evict(CacheNames.CustomerInfo, customerId);
+            CacheUtils.evict(CacheNames.LeadInfo, customerId);
         }
         return true;
     }
@@ -125,8 +130,8 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             if (customerInfoVo == null) {
                 throw new UserException("客户信息不存在");
             }
-            CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
-            CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
+            // 记录客户转移日志
+            customerTransferLogHandler.add(customerId, userId, sysUserVo.getDeptId());
             // 设置客户的 归属用户 与 归属部门
             CustomerInfoBo customerInfoBo = new CustomerInfoBo();
             customerInfoBo.setId(customerId);
@@ -139,6 +144,9 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             }
             // 转移客户相关资源到指定用户
             customerInfoCommonHandler.transfer(customerId, userId, sysUserVo.getDeptId());
+            // 清除缓存
+            CacheUtils.evict(CacheNames.CustomerInfo, customerId);
+            CacheUtils.evict(CacheNames.LeadInfo, customerId);
         }
         return true;
     }
@@ -195,10 +203,10 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
             throw new UserException("认领的客户不能为空");
         }
         for (Long customerId : customerIds) {
+            // 记录客户转移日志
+            customerTransferLogHandler.add(customerId, userId, deptId);
             // 认领客户
             DataPermissionHelper.ignore(() -> {
-                CacheUtils.evict(CacheNames.CustomerInfo, customerId); // 清除缓存
-                CacheUtils.evict(CacheNames.LeadInfo, customerId); // 清除缓存
                 CustomerInfoVo customerInfoVo = customerInfoService.queryById(customerId);
                 if (customerInfoVo == null || customerInfoVo.getAssignedTo() != null) {
                     throw new UserException("客户不存在或已被认领");
@@ -215,6 +223,9 @@ public class CustomerInfoHandlerImpl implements ICustomerInfoHandler {
                 // 认领客户相关资源
                 customerInfoCommonHandler.claim(customerId, userId, deptId);
             });
+            // 清除缓存
+            CacheUtils.evict(CacheNames.CustomerInfo, customerId);
+            CacheUtils.evict(CacheNames.LeadInfo, customerId);
         }
         return true;
     }
