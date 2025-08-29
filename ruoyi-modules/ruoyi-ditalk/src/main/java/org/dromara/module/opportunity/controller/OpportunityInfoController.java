@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.dromara.common.core.exception.user.UserException;
+import org.dromara.handler.ICustomerInfoCommonHandler;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
-import org.dromara.module.customer.service.ICustomerInfoService;
 import org.dromara.module.opportunity.domain.vo.OpportunityInfoOptionVo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
@@ -40,7 +40,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class OpportunityInfoController extends BaseController {
 
     private final IOpportunityInfoService opportunityInfoService;
-    private final ICustomerInfoService customerInfoService;
+    private final ICustomerInfoCommonHandler customerInfoCommonHandler;
 
     /**
      * 商机信息选项列表
@@ -93,7 +93,7 @@ public class OpportunityInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody OpportunityInfoBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoCommonHandler.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("新增操作失败，客户不存在");
         }

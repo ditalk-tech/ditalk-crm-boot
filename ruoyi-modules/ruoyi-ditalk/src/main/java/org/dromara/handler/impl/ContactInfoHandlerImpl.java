@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.exception.user.UserException;
 import org.dromara.handler.IContactInfoHandler;
+import org.dromara.handler.ICustomerInfoCommonHandler;
 import org.dromara.module.contact.domain.bo.ContactInfoBo;
 import org.dromara.module.contact.domain.vo.ContactInfoVo;
 import org.dromara.module.contact.service.IContactInfoService;
@@ -25,11 +26,12 @@ public class ContactInfoHandlerImpl implements IContactInfoHandler {
 
     private final ICustomerInfoService customerInfoService;
     private final IContactInfoService contactInfoService;
+    private final ICustomerInfoCommonHandler customerInfoCommonHandler;
 
     @Override
     @DSTransactional
     public Boolean add(ContactInfoBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoCommonHandler.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("客户信息不存在");
         }

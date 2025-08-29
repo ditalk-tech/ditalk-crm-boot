@@ -91,11 +91,4 @@ public interface ICustomerInfoService {
      */
     CustomerInfoVo queryByIdNoCache(Long id);
 
-    /**
-     * 通过ID查询 客户与线索 所有类型数据，不使用缓存
-     *
-     * @param id 客户ID
-     * @return 客户信息
-     */
-    CustomerInfoVo queryAllByIdNoCache(Long id);
 }

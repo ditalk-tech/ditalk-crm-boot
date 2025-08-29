@@ -7,10 +7,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.dromara.common.core.exception.user.UserException;
+import org.dromara.handler.ICustomerInfoCommonHandler;
 import org.dromara.module.contact.domain.vo.ContactInfoVo;
 import org.dromara.module.contact.service.IContactInfoService;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
-import org.dromara.module.customer.service.ICustomerInfoService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -41,7 +41,7 @@ public class CustomerActivityController extends BaseController {
 
     private final ICustomerActivityService customerActivityService;
     private final IContactInfoService contactInfoService;
-    private final ICustomerInfoService customerInfoService;
+    private final ICustomerInfoCommonHandler customerInfoCommonHandler;
 
     /**
      * 查询客户活动记录列表
@@ -52,7 +52,7 @@ public class CustomerActivityController extends BaseController {
         if (bo.getCustomerId() == null) {
             throw new UserException("请先指定客户");
         }
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoCommonHandler.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             TableDataInfo<CustomerActivityVo> build = TableDataInfo.build();
             build.setRows(List.of());
@@ -80,7 +80,7 @@ public class CustomerActivityController extends BaseController {
         if (bo.getCustomerId() == null) {
             throw new UserException("请先指定客户");
         }
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoCommonHandler.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("结果为空，无数据导出");
         }
@@ -99,7 +99,7 @@ public class CustomerActivityController extends BaseController {
                                      @PathVariable Long id) {
         CustomerActivityVo customerActivityVo = customerActivityService.queryById(id);
         if (customerActivityVo != null && customerActivityVo.getCustomerId() != null) {
-            CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(customerActivityVo.getCustomerId());
+            CustomerInfoVo customerInfoVo = customerInfoCommonHandler.queryAllByIdNoCache(customerActivityVo.getCustomerId());
             if (customerInfoVo == null) {
                 return R.fail("未找到对应的客户活动记录");
             }
@@ -115,7 +115,7 @@ public class CustomerActivityController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CustomerActivityBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoCommonHandler.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("新增操作失败，客户不存在");
         }
@@ -137,7 +137,7 @@ public class CustomerActivityController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CustomerActivityBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoService.queryAllByIdNoCache(bo.getCustomerId());
+        CustomerInfoVo customerInfoVo = customerInfoCommonHandler.queryAllByIdNoCache(bo.getCustomerId());
         if (customerInfoVo == null) {
             throw new UserException("修改操作失败，客户不存在");
         }

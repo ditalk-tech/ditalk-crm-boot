@@ -208,9 +208,4 @@ public class CustomerInfoServiceImpl implements ICustomerInfoService {
         return this.queryById(id);
     }
 
-    @Override
-    public CustomerInfoVo queryAllByIdNoCache(Long id) {
-        return baseMapper.selectVoById(id);
-    }
-
 }

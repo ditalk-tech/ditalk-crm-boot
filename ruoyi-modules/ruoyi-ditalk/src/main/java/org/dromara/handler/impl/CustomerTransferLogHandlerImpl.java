@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.constant.CommonConstants;
 import org.dromara.common.mybatis.helper.DataPermissionHelper;
+import org.dromara.handler.ICustomerInfoCommonHandler;
 import org.dromara.handler.ICustomerTransferLogHandler;
 import org.dromara.module.customer.domain.bo.CustomerTransferLogBo;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
-import org.dromara.module.customer.service.ICustomerInfoService;
 import org.dromara.module.customer.service.ICustomerTransferLogService;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +22,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomerTransferLogHandlerImpl implements ICustomerTransferLogHandler {
 
-    private final ICustomerInfoService customerInfoService;
     private final ICustomerTransferLogService customerTransferLogService;
+    private final ICustomerInfoCommonHandler customerInfoCommonHandler;
 
     @Override
     @DSTransactional
     public void add(Long customerId, Long newUserId, Long newDeptId) {
-        CustomerInfoVo infoVo = DataPermissionHelper.ignore(() -> customerInfoService.queryAllByIdNoCache(customerId));
+        CustomerInfoVo infoVo = DataPermissionHelper.ignore(() -> customerInfoCommonHandler.queryAllByIdNoCache(customerId));
         CustomerTransferLogBo logBo = new CustomerTransferLogBo();
         logBo.setCustomerId(customerId);
         logBo.setOldUserId(infoVo.getAssignedTo());

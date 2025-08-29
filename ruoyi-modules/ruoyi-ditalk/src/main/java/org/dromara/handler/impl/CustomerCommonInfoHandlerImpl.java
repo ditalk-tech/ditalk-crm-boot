@@ -21,6 +21,8 @@ import org.dromara.module.contract.domain.bo.ContractInfoBo;
 import org.dromara.module.contract.domain.vo.ContractInfoVo;
 import org.dromara.module.contract.mapper.ContractInfoMapper;
 import org.dromara.module.contract.service.IContractInfoService;
+import org.dromara.module.customer.domain.vo.CustomerInfoVo;
+import org.dromara.module.customer.mapper.CustomerInfoMapper;
 import org.dromara.module.opportunity.domain.OpportunityInfo;
 import org.dromara.module.opportunity.domain.bo.OpportunityInfoBo;
 import org.dromara.module.opportunity.domain.vo.OpportunityInfoVo;
@@ -48,6 +50,7 @@ public class CustomerCommonInfoHandlerImpl implements ICustomerInfoCommonHandler
     private final ContactInfoMapper contactInfoMapper;
     private final OpportunityInfoMapper opportunityInfoMapper;
     private final ContractInfoMapper contractInfoMapper;
+    private final CustomerInfoMapper customerInfoMapper;
 
     @Override
     @DSTransactional
@@ -243,4 +246,8 @@ public class CustomerCommonInfoHandlerImpl implements ICustomerInfoCommonHandler
         }
     }
 
+    @Override
+    public CustomerInfoVo queryAllByIdNoCache(Long id) {
+        return customerInfoMapper.selectVoById(id);
+    }
 }

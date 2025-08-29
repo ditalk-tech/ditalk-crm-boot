@@ -1,5 +1,7 @@
 package org.dromara.handler;
 
+import org.dromara.module.customer.domain.vo.CustomerInfoVo;
+
 /**
  * 客户/线索 公共应用接口
  *
@@ -36,5 +38,13 @@ public interface ICustomerInfoCommonHandler {
      * @param deptId
      */
     void claim(Long customerId, Long userId, Long deptId);
+
+    /**
+     * 通过ID查询 客户与线索 所有类型数据，不使用缓存
+     *
+     * @param id 客户ID
+     * @return 客户信息
+     */
+    CustomerInfoVo queryAllByIdNoCache(Long id);
 
 }
