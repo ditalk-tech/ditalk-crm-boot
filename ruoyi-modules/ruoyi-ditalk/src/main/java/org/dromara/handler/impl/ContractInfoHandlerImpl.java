@@ -37,7 +37,7 @@ public class ContractInfoHandlerImpl implements IContractInfoHandler {
     @DSTransactional
     public Boolean add(ContractInfoBo bo) {
         CustomerInfoVo customerInfoVo = customerInfoService.queryById(bo.getCustomerId()); // 线索不可以创建合同
-        if (customerInfoVo != null) {
+        if (customerInfoVo == null) {
             throw new UserException("客户不存在，无法创建合同");
         }
         bo.setAssignedTo(LoginHelper.getUserId());
