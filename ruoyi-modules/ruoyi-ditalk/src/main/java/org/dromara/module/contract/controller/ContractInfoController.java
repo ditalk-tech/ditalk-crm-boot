@@ -89,6 +89,7 @@ public class ContractInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody ContractInfoBo bo) {
+        bo.setCode(contractInfoHandler.generateContractCode("HT", "yyyyMMdd", "-", null));
         return toAjax(contractInfoHandler.add(bo));
     }
 
