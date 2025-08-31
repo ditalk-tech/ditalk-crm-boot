@@ -70,7 +70,7 @@ public class ContractInfoHandlerImpl implements IContractInfoHandler {
         ContractInfoBo codeQuery = new ContractInfoBo();
         codeQuery.setCode(bo.getCode());
         List<ContractInfoVo> infoVos = contractInfoService.queryList(codeQuery);
-        if (IterUtil.isEmpty(infoVos)) {
+        if (IterUtil.isNotEmpty(infoVos)) {
             throw new UserException("合同编号生成失败，请重试");
         }
         bo.setAssignedTo(LoginHelper.getUserId());
