@@ -48,7 +48,7 @@ public class ContractInfoHandlerImpl implements IContractInfoHandler {
         }
         // 加入雪花ID防重复
         Long id = IdUtil.getSnowflakeNextId();
-        String suffix = NumberConverterUtil.numToRadix(id.toString(), 62);
+        String suffix = NumberConverterUtil.numToRadix(id.toString(), 36);
         codeBuilder.append(separator).append(suffix);
         return codeBuilder.toString();
     }

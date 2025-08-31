@@ -12,7 +12,7 @@ import java.util.Map;
  * @author weidixian
  */
 public class NumberConverterUtil {
-    private static final String DIGITS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final char[] DIGIT_CHARS = DIGITS.toCharArray();
     private static final Map<Character, Integer> CHAR_TO_VALUE = new HashMap<>();
     static {
