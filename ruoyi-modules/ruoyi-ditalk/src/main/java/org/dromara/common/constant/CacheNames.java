@@ -46,4 +46,5 @@ public interface CacheNames {
     String ContractInfo = "ContractInfo#7d";
     String CustomerTransferLog = "CustomerTransferLog#7d";
     String OpportunityQuotation = "OpportunityQuotation#7d";
+    String OpportunityQuotationItem = "OpportunityQuotationItem#7d";
 }
