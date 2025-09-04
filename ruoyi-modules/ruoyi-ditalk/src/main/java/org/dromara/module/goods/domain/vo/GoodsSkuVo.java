@@ -83,6 +83,12 @@ public class GoodsSkuVo implements Serializable {
     private String specJson;
 
     /**
+     * 单位
+     */
+    @ExcelProperty(value = "单位")
+    private String unitName;
+
+    /**
      * 售价
      */
     @ExcelProperty(value = "售价")

@@ -63,6 +63,11 @@ public class GoodsSkuBo extends BaseEntity {
     private String specJson;
 
     /**
+     * 单位
+     */
+    private String unitName;
+
+    /**
      * 售价
      */
     @NotNull(message = "售价不能为空", groups = { AddGroup.class, EditGroup.class, BatchGroup.class })

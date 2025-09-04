@@ -65,6 +65,11 @@ public class GoodsSku extends TenantEntity {
     private String specJson;
 
     /**
+     * 单位
+     */
+    private String unitName;
+
+    /**
      * 售价
      */
     private Long salePrice;
