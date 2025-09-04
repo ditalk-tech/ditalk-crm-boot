@@ -11,6 +11,8 @@ import jakarta.validation.constraints.*;
 import org.dromara.common.translation.annotation.Translation;
 import org.dromara.common.translation.constant.TransConstant;
 
+import java.util.Date;
+
 /**
  * 商机报价单明细业务对象 opportunity_quotation_item
  *
@@ -88,6 +90,11 @@ public class OpportunityQuotationItemBo extends BaseEntity {
     private String specJson;
 
     /**
+     * 单位
+     */
+    private String unitName;
+
+    /**
      * 售价
      */
     @NotNull(message = "售价不能为空", groups = { AddGroup.class, EditGroup.class })
@@ -133,5 +140,9 @@ public class OpportunityQuotationItemBo extends BaseEntity {
     @NotNull(message = "总价不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long totalPrice;
 
+    /**
+     * 交货日期
+     */
+    private Date deliveryDate;
 
 }

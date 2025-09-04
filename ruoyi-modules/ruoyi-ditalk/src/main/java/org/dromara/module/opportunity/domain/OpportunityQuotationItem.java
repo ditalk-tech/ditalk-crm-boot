@@ -4,10 +4,9 @@ import org.dromara.common.tenant.core.TenantEntity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.dromara.common.translation.annotation.Translation;
-import org.dromara.common.translation.constant.TransConstant;
 
 import java.io.Serial;
+import java.util.Date;
 
 /**
  * 商机报价单明细对象 opportunity_quotation_item
@@ -87,6 +86,11 @@ public class OpportunityQuotationItem extends TenantEntity {
     private String specJson;
 
     /**
+     * 单位
+     */
+    private String unitName;
+
+    /**
      * 售价
      */
     private Long salePrice;
@@ -126,5 +130,9 @@ public class OpportunityQuotationItem extends TenantEntity {
      */
     private Long totalPrice;
 
+    /**
+     * 交货日期
+     */
+    private Date deliveryDate;
 
 }

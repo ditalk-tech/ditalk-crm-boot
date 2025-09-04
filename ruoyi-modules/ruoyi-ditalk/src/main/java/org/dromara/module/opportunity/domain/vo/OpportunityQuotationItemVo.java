@@ -108,6 +108,12 @@ public class OpportunityQuotationItemVo implements Serializable {
     private String specJson;
 
     /**
+     * 单位
+     */
+    @ExcelProperty(value = "单位")
+    private String unitName;
+
+    /**
      * 售价
      */
     @ExcelProperty(value = "售价")
@@ -155,5 +161,10 @@ public class OpportunityQuotationItemVo implements Serializable {
     @ExcelProperty(value = "总价")
     private Long totalPrice;
 
+    /**
+     * 交货日期
+     */
+    @ExcelProperty(value = "交货日期")
+    private Date deliveryDate;
 
 }
