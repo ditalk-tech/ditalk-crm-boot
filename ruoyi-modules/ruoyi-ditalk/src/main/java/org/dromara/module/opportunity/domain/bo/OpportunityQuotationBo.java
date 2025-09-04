@@ -36,49 +36,45 @@ public class OpportunityQuotationBo extends BaseEntity {
     /**
      * 商机ID
      */
-    @NotNull(message = "商机ID不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "商机ID不能为空", groups = { AddGroup.class })
     private Long opportunityId;
 
     /**
      * 客户ID
      */
-    @NotNull(message = "客户ID不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "客户ID不能为空", groups = { AddGroup.class })
     private Long customerId;
 
     /**
      * 联系人ID
      */
-    @NotNull(message = "联系人ID不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "联系人ID不能为空", groups = { AddGroup.class })
     private Long contactId;
 
     /**
      * 编号
      */
-    @NotBlank(message = "编号不能为空", groups = { AddGroup.class, EditGroup.class })
     private String code;
 
     /**
      * 总售价
      */
-    @NotNull(message = "总售价不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long totalSalePrice;
 
     /**
      * 总定价
      */
-    @NotNull(message = "总定价不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long totalOriginalPrice;
 
     /**
      * 总成本
      */
-    @NotNull(message = "总成本不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long totalCostPrice;
 
     /**
      * 有效期到
      */
-    @NotNull(message = "有效期到不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "有效期到不能为空", groups = { AddGroup.class })
     private Date validUntil;
 
     /**
@@ -94,13 +90,11 @@ public class OpportunityQuotationBo extends BaseEntity {
     /**
      * 审批状态
      */
-    @NotBlank(message = "审批状态不能为空", groups = { AddGroup.class, EditGroup.class })
     private String approvalState;
 
     /**
      * 交互状态
      */
-    @NotBlank(message = "交互状态不能为空", groups = { AddGroup.class, EditGroup.class })
     private String quotationState;
 
     /**
@@ -108,5 +102,8 @@ public class OpportunityQuotationBo extends BaseEntity {
      */
     private String remark;
 
-
+    /**
+     * 引用状态
+     */
+    private String quoted;
 }

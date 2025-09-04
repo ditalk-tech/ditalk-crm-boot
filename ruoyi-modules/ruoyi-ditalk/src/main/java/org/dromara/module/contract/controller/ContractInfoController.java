@@ -9,6 +9,7 @@ import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.dromara.common.core.domain.dto.OssDTO;
 import org.dromara.common.core.service.OssService;
+import org.dromara.common.utils.CodeGeneratorUtil;
 import org.dromara.handler.IContractInfoHandler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
@@ -89,7 +90,7 @@ public class ContractInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody ContractInfoBo bo) {
-        bo.setCode(contractInfoHandler.generateContractCode("HT", "yyyyMMdd", "-", null));
+        bo.setCode(CodeGeneratorUtil.businessCode("HT", "yyyyMMdd", "-", null, null));
         return toAjax(contractInfoHandler.add(bo));
     }
 

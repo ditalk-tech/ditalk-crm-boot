@@ -99,6 +99,7 @@ public class OpportunityQuotationServiceImpl implements IOpportunityQuotationSer
         lqw.eq(bo.getAssignedDept() != null, OpportunityQuotation::getAssignedDept, bo.getAssignedDept());
         lqw.eq(StringUtils.isNotBlank(bo.getApprovalState()), OpportunityQuotation::getApprovalState, bo.getApprovalState());
         lqw.eq(StringUtils.isNotBlank(bo.getQuotationState()), OpportunityQuotation::getQuotationState, bo.getQuotationState());
+        lqw.eq(StringUtils.isNotBlank(bo.getQuoted()), OpportunityQuotation::getQuoted, bo.getQuoted());
         return lqw;
     }
 

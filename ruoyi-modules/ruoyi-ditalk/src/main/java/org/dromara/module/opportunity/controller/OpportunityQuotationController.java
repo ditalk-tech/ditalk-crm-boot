@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.handler.IOpportunityQuotationHandler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -35,6 +36,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class OpportunityQuotationController extends BaseController {
 
     private final IOpportunityQuotationService opportunityQuotationService;
+    private final IOpportunityQuotationHandler opportunityQuotationHandler;
 
     /**
      * 查询商机报价单列表
@@ -76,7 +78,7 @@ public class OpportunityQuotationController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody OpportunityQuotationBo bo) {
-        return toAjax(opportunityQuotationService.insertByBo(bo));
+        return toAjax(opportunityQuotationHandler.add(bo));
     }
 
     /**
@@ -87,7 +89,7 @@ public class OpportunityQuotationController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody OpportunityQuotationBo bo) {
-        return toAjax(opportunityQuotationService.updateByBo(bo));
+        return toAjax(opportunityQuotationHandler.edit(bo));
     }
 
     /**

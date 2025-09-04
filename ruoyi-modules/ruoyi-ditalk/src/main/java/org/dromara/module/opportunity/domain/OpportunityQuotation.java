@@ -105,5 +105,8 @@ public class OpportunityQuotation extends TenantEntity {
      */
     private String remark;
 
-
+    /**
+     * 引用状态
+     */
+    private String quoted;
 }

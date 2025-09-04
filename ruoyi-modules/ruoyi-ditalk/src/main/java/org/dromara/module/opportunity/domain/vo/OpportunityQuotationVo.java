@@ -43,7 +43,6 @@ public class OpportunityQuotationVo implements Serializable {
     /**
      * 乐观锁
      */
-    @ExcelProperty(value = "乐观锁")
     private Long version;
 
     /**
@@ -126,5 +125,10 @@ public class OpportunityQuotationVo implements Serializable {
     @ExcelProperty(value = "备注")
     private String remark;
 
-
+    /**
+     * 引用状态
+     */
+    @ExcelProperty(value = "引用状态", converter = ExcelDictConvert.class)
+    @ExcelDictFormat(dictType = "sys_yes_no")
+    private String quoted;
 }
