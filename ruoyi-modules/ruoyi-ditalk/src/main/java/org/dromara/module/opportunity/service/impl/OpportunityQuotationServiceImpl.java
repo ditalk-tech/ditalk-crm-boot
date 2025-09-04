@@ -91,6 +91,7 @@ public class OpportunityQuotationServiceImpl implements IOpportunityQuotationSer
             OpportunityQuotation::getCreateTime, params.get("beginCreateTime"), params.get("endCreateTime"));
         lqw.eq(bo.getOpportunityId() != null, OpportunityQuotation::getOpportunityId, bo.getOpportunityId());
         lqw.eq(bo.getCustomerId() != null, OpportunityQuotation::getCustomerId, bo.getCustomerId());
+        lqw.eq(bo.getContactId() != null, OpportunityQuotation::getContactId, bo.getContactId());
         lqw.like(StringUtils.isNotBlank(bo.getCode()), OpportunityQuotation::getCode, bo.getCode());
         lqw.between(params.get("beginValidUntil") != null && params.get("endValidUntil") != null,
             OpportunityQuotation::getValidUntil, params.get("beginValidUntil"), params.get("endValidUntil"));

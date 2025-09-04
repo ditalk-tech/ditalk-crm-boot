@@ -59,6 +59,12 @@ public class OpportunityQuotationVo implements Serializable {
     private Long customerId;
 
     /**
+     * 联系人ID
+     */
+    @ExcelProperty(value = "联系人ID")
+    private Long contactId;
+
+    /**
      * 编号
      */
     @ExcelProperty(value = "编号")

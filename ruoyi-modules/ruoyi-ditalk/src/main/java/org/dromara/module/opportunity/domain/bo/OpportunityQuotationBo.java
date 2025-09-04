@@ -46,6 +46,12 @@ public class OpportunityQuotationBo extends BaseEntity {
     private Long customerId;
 
     /**
+     * 联系人ID
+     */
+    @NotNull(message = "联系人ID不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Long contactId;
+
+    /**
      * 编号
      */
     @NotBlank(message = "编号不能为空", groups = { AddGroup.class, EditGroup.class })

@@ -51,6 +51,11 @@ public class OpportunityQuotation extends TenantEntity {
     private Long customerId;
 
     /**
+     * 联系人ID
+     */
+    private Long contactId;
+
+    /**
      * 编号
      */
     private String code;
