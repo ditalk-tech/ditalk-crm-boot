@@ -8,8 +8,6 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
-import org.dromara.common.translation.annotation.Translation;
-import org.dromara.common.translation.constant.TransConstant;
 
 import java.util.Date;
 
@@ -39,7 +37,7 @@ public class OpportunityQuotationItemBo extends BaseEntity {
     /**
      * 商机ID
      */
-    @NotNull(message = "商机ID不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "商机ID不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long opportunityId;
 
     /**
@@ -51,19 +49,19 @@ public class OpportunityQuotationItemBo extends BaseEntity {
     /**
      * 店铺ID
      */
-    @NotNull(message = "店铺ID不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "店铺ID不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long shopId;
 
     /**
      * 客户ID
      */
-    @NotNull(message = "客户ID不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "客户ID不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long customerId;
 
     /**
      * 商品快照ID
      */
-    @NotNull(message = "商品快照ID不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "商品快照ID不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long goodsSnapshotId;
 
     /**
@@ -80,13 +78,13 @@ public class OpportunityQuotationItemBo extends BaseEntity {
     /**
      * 图片
      */
-    @NotNull(message = "图片不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "图片不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long mainPic;
 
     /**
      * 规格JSON
      */
-    @NotBlank(message = "规格JSON不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotBlank(message = "规格JSON不能为空", groups = { AddGroup.class, EditGroup.class })
     private String specJson;
 
     /**
@@ -97,7 +95,7 @@ public class OpportunityQuotationItemBo extends BaseEntity {
     /**
      * 售价
      */
-    @NotNull(message = "售价不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "售价不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long salePrice;
 
     /**
@@ -113,13 +111,13 @@ public class OpportunityQuotationItemBo extends BaseEntity {
     /**
      * 重量(kg)
      */
-    @NotNull(message = "重量(kg)不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "重量(kg)不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long weight;
 
     /**
      * 体积(m³)
      */
-    @NotNull(message = "体积(m³)不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "体积(m³)不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long volume;
 
     /**
@@ -137,7 +135,7 @@ public class OpportunityQuotationItemBo extends BaseEntity {
     /**
      * 总价
      */
-    @NotNull(message = "总价不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "总价不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long totalPrice;
 
     /**
