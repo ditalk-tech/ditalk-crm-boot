@@ -13,10 +13,10 @@ import org.dromara.module.goods.domain.vo.GoodsInfoSnapshotVo;
 import org.dromara.module.goods.domain.vo.GoodsSkuVo;
 import org.dromara.module.goods.service.IGoodsInfoSnapshotService;
 import org.dromara.module.goods.service.IGoodsSkuService;
+import org.dromara.module.opportunity.domain.bo.OpportunityQuotationBo;
 import org.dromara.module.opportunity.domain.bo.OpportunityQuotationItemBo;
 import org.dromara.module.opportunity.domain.vo.OpportunityQuotationItemVo;
 import org.dromara.module.opportunity.domain.vo.OpportunityQuotationVo;
-import org.dromara.module.opportunity.service.IOpportunityInfoService;
 import org.dromara.module.opportunity.service.IOpportunityQuotationItemService;
 import org.dromara.module.opportunity.service.IOpportunityQuotationService;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,6 @@ public class OpportunityQuotationItemHandlerImpl implements IOpportunityQuotatio
     private final IOpportunityQuotationItemService opportunityQuotationItemService;
     private final IGoodsInfoSnapshotService goodsInfoSnapshotService;
     private final IGoodsSkuService goodsSkuService;
-    private final IOpportunityInfoService opportunityInfoService;
 
     @Override
     @DSTransactional
@@ -54,9 +53,12 @@ public class OpportunityQuotationItemHandlerImpl implements IOpportunityQuotatio
         if (IterUtil.isNotEmpty(voList)) {
             throw new IllegalArgumentException("已存在相同的商品，不可重复添加");
         }
-        OpportunityQuotationItemBo itemBo = buildOrderItemBo(bo);
-        ValidatorUtils.validate(itemBo, AddGroup.class);
-        return opportunityQuotationItemService.insertByBo(itemBo);
+        OpportunityQuotationItemBo addBo = buildOrderItemBo(bo);
+        ValidatorUtils.validate(addBo, AddGroup.class);
+        boolean flag = opportunityQuotationItemService.insertByBo(addBo);
+        if (!flag) throw new UserException("添加失败");
+        // 更新报价单价格
+        return updateQuotationPrice(bo.getQuotationId());
     }
 
     @Override
@@ -81,11 +83,15 @@ public class OpportunityQuotationItemHandlerImpl implements IOpportunityQuotatio
             }
         }
         // 构建商机商品项BO对象
-        OpportunityQuotationItemBo itemBo = buildOrderItemBo(bo);
-        ValidatorUtils.validate(itemBo, EditGroup.class);
-        return opportunityQuotationItemService.updateByBo(itemBo);
+        OpportunityQuotationItemBo editBo = buildOrderItemBo(bo);
+        ValidatorUtils.validate(editBo, EditGroup.class);
+        Boolean flag = opportunityQuotationItemService.updateByBo(editBo);
+        if (!flag) throw new UserException("更新失败");
+        // 更新报价单价格
+        return updateQuotationPrice(bo.getQuotationId());
     }
 
+    @DSTransactional
     private OpportunityQuotationItemBo buildOrderItemBo(OpportunityQuotationItemBo bo) {
         OpportunityQuotationVo quotationVo = opportunityQuotationService.queryById(bo.getQuotationId());
         if (quotationVo == null) throw new UserException("报价单信息错误");
@@ -93,8 +99,6 @@ public class OpportunityQuotationItemHandlerImpl implements IOpportunityQuotatio
         if (goodsSkuVo == null) throw new UserException("商品SKU不存在");
         GoodsInfoSnapshotVo goodsInfoSnapshotVo = goodsInfoSnapshotService.queryLastByGoodsId(goodsSkuVo.getGoodsId());
         if (goodsInfoSnapshotVo == null) throw new UserException("商品信息不存在");
-//        OpportunityInfoVo opportunityInfoVo = opportunityInfoService.queryById(quotationVo.getOpportunityId());
-//        if (opportunityInfoVo == null) throw new UserException("商机信息不存在");
         OpportunityQuotationItemBo itemBo = new OpportunityQuotationItemBo();
         if (bo.getId() != null) {
             if (bo.getVersion() == null) throw new UserException("数据版本号不能为空");
@@ -121,5 +125,31 @@ public class OpportunityQuotationItemHandlerImpl implements IOpportunityQuotatio
         itemBo.setTotalPrice(bo.getUnitPrice() * bo.getQuantity());
         itemBo.setDeliveryDate(bo.getDeliveryDate());
         return itemBo;
+    }
+
+    /**
+     * 根据商品明细重新统计报价单价格信息
+     */
+    @DSTransactional
+    private Boolean updateQuotationPrice(Long quotationId) {
+        // 查询商品明细
+        OpportunityQuotationItemBo itemBo = new OpportunityQuotationItemBo();
+        itemBo.setQuotationId(quotationId);
+        List<OpportunityQuotationItemVo> itemVoList = opportunityQuotationItemService.queryList(itemBo);
+        if (IterUtil.isNotEmpty(itemVoList)) {
+            OpportunityQuotationBo quotationBo = new OpportunityQuotationBo();
+            quotationBo.setId(quotationId);
+            quotationBo.setTotalSalePrice(0L);
+            quotationBo.setTotalCostPrice(0L);
+            quotationBo.setTotalOriginalPrice(0L);
+            itemVoList.forEach(itemVo -> {
+                quotationBo.setTotalSalePrice(quotationBo.getTotalSalePrice() + itemVo.getTotalPrice());
+                quotationBo.setTotalCostPrice(quotationBo.getTotalCostPrice() + itemVo.getCostPrice() * itemVo.getQuantity());
+                quotationBo.setTotalOriginalPrice(quotationBo.getTotalOriginalPrice() + itemVo.getOriginalPrice() * itemVo.getQuantity());
+            });
+            Boolean flag = opportunityQuotationService.updateByBo(quotationBo);
+            if (!flag) throw new UserException("更新失败");
+        }
+        return true;
     }
 }

@@ -117,6 +117,7 @@ public class OpportunityQuotationItemController extends BaseController {
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
+//        return toAjax(opportunityQuotationItemHandler.remove(bo));
         for (Long id : ids) {
             OpportunityQuotationItemVo vo = opportunityQuotationItemService.queryById(id);
             if (vo == null || vo.getQuotationId() == null) {
