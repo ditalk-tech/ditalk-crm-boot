@@ -21,6 +21,7 @@ import org.dromara.module.opportunity.service.IOpportunityQuotationItemService;
 import org.dromara.module.opportunity.service.IOpportunityQuotationService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -89,6 +90,28 @@ public class OpportunityQuotationItemHandlerImpl implements IOpportunityQuotatio
         if (!flag) throw new UserException("更新失败");
         // 更新报价单价格
         return updateQuotationPrice(bo.getQuotationId());
+    }
+
+    @Override
+    @DSTransactional
+    public Boolean remove(List<Long> ids) {
+        List<Long> quotationIdList = new ArrayList<>();
+        for (Long id : ids) {
+            OpportunityQuotationItemVo vo = opportunityQuotationItemService.queryById(id);
+            if (vo == null || vo.getQuotationId() == null) {
+                throw new UserException("删除操作失败，记录不存在");
+            }
+            OpportunityQuotationVo quotationVo = opportunityQuotationService.queryById(vo.getQuotationId());
+            if (quotationVo == null) {
+                throw new UserException("删除操作失败，未找到数据");
+            }
+            quotationIdList.add(vo.getQuotationId());
+        }
+        Boolean flag = opportunityQuotationItemService.deleteWithValidByIds(ids, true);
+        if (!flag) throw new UserException("删除操作失败");
+        //
+        quotationIdList.forEach(quotationId -> updateQuotationPrice(quotationId));
+        return true;
     }
 
     @DSTransactional

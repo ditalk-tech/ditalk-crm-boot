@@ -117,17 +117,6 @@ public class OpportunityQuotationItemController extends BaseController {
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
-//        return toAjax(opportunityQuotationItemHandler.remove(bo));
-        for (Long id : ids) {
-            OpportunityQuotationItemVo vo = opportunityQuotationItemService.queryById(id);
-            if (vo == null || vo.getQuotationId() == null) {
-                throw new UserException("删除操作失败，记录不存在");
-            }
-            OpportunityQuotationVo quotationVo = opportunityQuotationService.queryById(vo.getQuotationId());
-            if (quotationVo == null) {
-                return R.fail("删除操作失败，未找到数据");
-            }
-        }
-        return toAjax(opportunityQuotationItemService.deleteWithValidByIds(List.of(ids), true));
+        return toAjax(opportunityQuotationItemHandler.remove(List.of(ids)));
     }
 }
