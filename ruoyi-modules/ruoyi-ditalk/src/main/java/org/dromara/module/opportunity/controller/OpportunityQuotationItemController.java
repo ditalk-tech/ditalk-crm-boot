@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.common.core.exception.user.UserException;
 import org.dromara.handler.IOpportunityQuotationItemHandler;
+import org.dromara.module.opportunity.domain.vo.OpportunityQuotationVo;
+import org.dromara.module.opportunity.service.IOpportunityQuotationService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -35,6 +38,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @RequestMapping("/opportunity/quotationItem")
 public class OpportunityQuotationItemController extends BaseController {
 
+    private final IOpportunityQuotationService opportunityQuotationService;
     private final IOpportunityQuotationItemService opportunityQuotationItemService;
     private final IOpportunityQuotationItemHandler opportunityQuotationItemHandler;
 
@@ -44,6 +48,8 @@ public class OpportunityQuotationItemController extends BaseController {
     @SaCheckPermission("opportunity:quotationItem:list")
     @GetMapping("/list")
     public TableDataInfo<OpportunityQuotationItemVo> list(OpportunityQuotationItemBo bo, PageQuery pageQuery) {
+        if (bo.getQuotationId() == null)
+            throw new UserException("须先指定报价单");
         return opportunityQuotationItemService.queryPageList(bo, pageQuery);
     }
 
@@ -54,6 +60,8 @@ public class OpportunityQuotationItemController extends BaseController {
     @Log(title = "商机报价单明细", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(OpportunityQuotationItemBo bo, HttpServletResponse response) {
+        if (bo.getQuotationId() == null)
+            throw new UserException("须先指定报价单");
         List<OpportunityQuotationItemVo> list = opportunityQuotationItemService.queryList(bo);
         ExcelUtil.exportExcel(list, "商机报价单明细", OpportunityQuotationItemVo.class, response);
     }
@@ -67,7 +75,14 @@ public class OpportunityQuotationItemController extends BaseController {
     @GetMapping("/{id}")
     public R<OpportunityQuotationItemVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
-        return R.ok(opportunityQuotationItemService.queryById(id));
+        OpportunityQuotationItemVo itemVo = opportunityQuotationItemService.queryById(id);
+        if (itemVo != null && itemVo.getQuotationId() != null) {
+            OpportunityQuotationVo quotationVo = opportunityQuotationService.queryById(itemVo.getQuotationId());
+            if (quotationVo == null) {
+                return R.fail("未找到对应的报价单明细");
+            }
+        }
+        return R.ok(itemVo);
     }
 
     /**
@@ -102,6 +117,16 @@ public class OpportunityQuotationItemController extends BaseController {
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
+        for (Long id : ids) {
+            OpportunityQuotationItemVo vo = opportunityQuotationItemService.queryById(id);
+            if (vo == null || vo.getQuotationId() == null) {
+                throw new UserException("删除操作失败，记录不存在");
+            }
+            OpportunityQuotationVo quotationVo = opportunityQuotationService.queryById(vo.getQuotationId());
+            if (quotationVo == null) {
+                return R.fail("删除操作失败，未找到数据");
+            }
+        }
         return toAjax(opportunityQuotationItemService.deleteWithValidByIds(List.of(ids), true));
     }
 }

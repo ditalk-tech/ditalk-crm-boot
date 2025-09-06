@@ -52,7 +52,7 @@ public class OpportunityOrderItemController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo<OpportunityOrderItemVo> list(OpportunityOrderItemBo bo, PageQuery pageQuery) {
         if (bo.getOpportunityId() == null) {
-            throw new UserException("必先指定商机");
+            throw new UserException("须先指定商机");
         }
         return opportunityOrderItemService.queryPageList(bo, pageQuery);
     }
@@ -65,7 +65,7 @@ public class OpportunityOrderItemController extends BaseController {
     @PostMapping("/export")
     public void export(OpportunityOrderItemBo bo, HttpServletResponse response) {
         if (bo.getOpportunityId() == null) {
-            throw new UserException("必先指定商机");
+            throw new UserException("须先指定商机");
         }
         List<OpportunityOrderItemVo> list = opportunityOrderItemService.queryList(bo);
         ExcelUtil.exportExcel(list, "商机商品", OpportunityOrderItemVo.class, response);
