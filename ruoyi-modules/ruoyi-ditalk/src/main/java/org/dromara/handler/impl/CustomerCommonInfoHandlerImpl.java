@@ -24,10 +24,15 @@ import org.dromara.module.contract.service.IContractInfoService;
 import org.dromara.module.customer.domain.vo.CustomerInfoVo;
 import org.dromara.module.customer.mapper.CustomerInfoMapper;
 import org.dromara.module.opportunity.domain.OpportunityInfo;
+import org.dromara.module.opportunity.domain.OpportunityQuotation;
 import org.dromara.module.opportunity.domain.bo.OpportunityInfoBo;
+import org.dromara.module.opportunity.domain.bo.OpportunityQuotationBo;
 import org.dromara.module.opportunity.domain.vo.OpportunityInfoVo;
+import org.dromara.module.opportunity.domain.vo.OpportunityQuotationVo;
 import org.dromara.module.opportunity.mapper.OpportunityInfoMapper;
+import org.dromara.module.opportunity.mapper.OpportunityQuotationMapper;
 import org.dromara.module.opportunity.service.IOpportunityInfoService;
+import org.dromara.module.opportunity.service.IOpportunityQuotationService;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -46,9 +51,11 @@ public class CustomerCommonInfoHandlerImpl implements ICustomerInfoCommonHandler
 
     private final IContactInfoService contactInfoService;
     private final IOpportunityInfoService opportunityInfoService;
+    private final IOpportunityQuotationService opportunityQuotationService;
     private final IContractInfoService contractInfoService;
     private final ContactInfoMapper contactInfoMapper;
     private final OpportunityInfoMapper opportunityInfoMapper;
+    private final OpportunityQuotationMapper opportunityQuotationMapper;
     private final ContractInfoMapper contractInfoMapper;
     private final CustomerInfoMapper customerInfoMapper;
 
@@ -97,6 +104,28 @@ public class CustomerCommonInfoHandlerImpl implements ICustomerInfoCommonHandler
                 if (!flag) {
                     throw new UserException("回收商机信息失败");
                 }
+            });
+        }
+        // 回收商机的报价信息
+        OpportunityQuotationBo opportunityQuotationBo = new OpportunityQuotationBo();
+        opportunityQuotationBo.setCustomerId(customerId);
+        List<OpportunityQuotationVo> opportunityQuotationVoList = DataPermissionHelper.ignore(() -> opportunityQuotationService.queryList(opportunityQuotationBo));
+        if (IterUtil.isNotEmpty(opportunityQuotationVoList)) {
+            opportunityQuotationVoList.forEach(vo -> {
+                CacheUtils.evict(CacheNames.OpportunityQuotation, vo.getId()); // 清除报价缓存
+                // 设置报价信息 归属用户 与 归属部门 为空
+                LambdaUpdateWrapper wrapperContact = new LambdaUpdateWrapper<OpportunityQuotation>()
+                    .set(OpportunityQuotation::getAssignedTo, null)
+                    .set(OpportunityQuotation::getAssignedDept, null)
+                    .set(OpportunityQuotation::getVersion, vo.getVersion() + 1)
+                    .set(OpportunityQuotation::getUpdateBy, LoginHelper.getUserId())
+                    .set(OpportunityQuotation::getUpdateTime, new Date())
+                    .eq(OpportunityQuotation::getId, vo.getId())
+                    .eq(OpportunityQuotation::getVersion, vo.getVersion());
+                    Boolean flag = opportunityQuotationMapper.update(null, wrapperContact) > 0;
+                    if (!flag) {
+                        throw new UserException("回收报价信息失败");
+                    }
             });
         }
         // 回收客户的合同
@@ -165,6 +194,25 @@ public class CustomerCommonInfoHandlerImpl implements ICustomerInfoCommonHandler
                     }
                 });
             }
+            // 转移客户的商机报价单
+            OpportunityQuotationBo opportunityQuotationBo = new OpportunityQuotationBo();
+            opportunityQuotationBo.setCustomerId(customerId);
+            List<OpportunityQuotationVo> opportunityQuotationVoList = opportunityQuotationService.queryList(opportunityQuotationBo);
+            if (IterUtil.isNotEmpty(opportunityQuotationVoList)) {
+                opportunityQuotationVoList.forEach(vo -> {
+                    CacheUtils.evict(CacheNames.OpportunityQuotation, vo.getId()); // 清除报价缓存
+                    // 设置报价信息的 归属用户 与 归属部门
+                    OpportunityQuotationBo infoBo = new OpportunityQuotationBo();
+                    infoBo.setId(vo.getId());
+                    infoBo.setAssignedTo(userId);
+                    infoBo.setAssignedDept(deptId);
+                    infoBo.setVersion(vo.getVersion());
+                    Boolean flag = opportunityQuotationService.updateByBo(infoBo);
+                    if (!flag) {
+                        throw new UserException("转移报价信息失败");
+                    }
+                });
+            }
             // 转移客户的合同
             ContractInfoBo contractInfoBo = new ContractInfoBo();
             contractInfoBo.setCustomerId(customerId);
@@ -223,6 +271,24 @@ public class CustomerCommonInfoHandlerImpl implements ICustomerInfoCommonHandler
                 Boolean flag = opportunityInfoService.updateByBo(opportunityBo);
                 if (!flag) {
                     throw new UserException("认领商机信息失败");
+                }
+            });
+        }
+        // 认领商机报价单
+        OpportunityQuotationBo opportunityQuotationBo = new OpportunityQuotationBo();
+        opportunityQuotationBo.setCustomerId(customerId);
+        List<OpportunityQuotationVo> opportunityQuotationVoList = opportunityQuotationService.queryList(opportunityQuotationBo);
+        if (IterUtil.isNotEmpty(opportunityQuotationVoList)) {
+            opportunityQuotationVoList.forEach(vo -> {
+                CacheUtils.evict(CacheNames.OpportunityQuotation, vo.getId()); // 清除报价缓存
+                // 设置商机报价单的 归属用户 与 归属部门
+                OpportunityQuotationBo quotationBo = new OpportunityQuotationBo();
+                quotationBo.setId(vo.getId());
+                quotationBo.setAssignedTo(userId);
+                quotationBo.setAssignedDept(deptId);
+                Boolean flag = opportunityQuotationService.updateByBo(quotationBo);
+                if (!flag) {
+                    throw new UserException("认领报价信息失败");
                 }
             });
         }
