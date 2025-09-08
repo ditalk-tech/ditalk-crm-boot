@@ -1,31 +1,30 @@
 package org.dromara.module.opportunity.controller;
 
-import java.util.List;
-
-import cn.hutool.core.bean.BeanUtil;
-import lombok.RequiredArgsConstructor;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import org.dromara.common.core.exception.user.UserException;
-import org.dromara.handler.ICustomerInfoCommonHandler;
-import org.dromara.module.customer.domain.vo.CustomerInfoVo;
-import org.dromara.module.opportunity.domain.vo.OpportunityInfoOptionVo;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.annotation.Validated;
-import org.dromara.common.idempotent.annotation.RepeatSubmit;
-import org.dromara.common.log.annotation.Log;
-import org.dromara.common.web.core.BaseController;
-import org.dromara.common.mybatis.core.page.PageQuery;
+import cn.hutool.core.bean.BeanUtil;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
-import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.module.opportunity.domain.vo.OpportunityInfoVo;
-import org.dromara.module.opportunity.domain.bo.OpportunityInfoBo;
-import org.dromara.module.opportunity.service.IOpportunityInfoService;
+import org.dromara.common.idempotent.annotation.RepeatSubmit;
+import org.dromara.common.log.annotation.Log;
+import org.dromara.common.log.enums.BusinessType;
+import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.web.core.BaseController;
+import org.dromara.handler.IOpportunityInfoHandler;
+import org.dromara.module.opportunity.domain.bo.OpportunityInfoBo;
+import org.dromara.module.opportunity.domain.vo.OpportunityInfoOptionVo;
+import org.dromara.module.opportunity.domain.vo.OpportunityInfoVo;
+import org.dromara.module.opportunity.service.IOpportunityInfoService;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 商机信息
@@ -40,7 +39,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class OpportunityInfoController extends BaseController {
 
     private final IOpportunityInfoService opportunityInfoService;
-    private final ICustomerInfoCommonHandler customerInfoCommonHandler;
+    private final IOpportunityInfoHandler opportunityInfoHandler;
 
     /**
      * 商机信息选项列表
@@ -80,7 +79,7 @@ public class OpportunityInfoController extends BaseController {
     @SaCheckPermission("opportunity:info:query")
     @GetMapping("/{id}")
     public R<OpportunityInfoVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long id) {
+                                        @PathVariable Long id) {
         OpportunityInfoVo opportunityInfoVo = opportunityInfoService.queryById(id);
         return R.ok(opportunityInfoVo);
     }
@@ -93,11 +92,7 @@ public class OpportunityInfoController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody OpportunityInfoBo bo) {
-        CustomerInfoVo customerInfoVo = customerInfoCommonHandler.queryAllByIdNoCache(bo.getCustomerId());
-        if (customerInfoVo == null) {
-            throw new UserException("新增操作失败，客户不存在");
-        }
-        return toAjax(opportunityInfoService.insertByBo(bo));
+        return toAjax(opportunityInfoHandler.add(bo));
     }
 
     /**
@@ -108,7 +103,7 @@ public class OpportunityInfoController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody OpportunityInfoBo bo) {
-        return toAjax(opportunityInfoService.updateByBo(bo));
+        return toAjax(opportunityInfoHandler.edit(bo));
     }
 
     /**
