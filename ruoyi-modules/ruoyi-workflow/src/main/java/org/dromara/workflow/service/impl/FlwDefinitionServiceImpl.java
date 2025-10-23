@@ -78,10 +78,8 @@ public class FlwDefinitionServiceImpl implements IFlwDefinitionService {
         LambdaQueryWrapper<FlowDefinition> wrapper = buildQueryWrapper(flowDefinition);
         wrapper.eq(FlowDefinition::getIsPublish, PublishStatus.PUBLISHED.getKey());
         Page<FlowDefinition> page = flowDefinitionMapper.selectPage(pageQuery.build(), wrapper);
-        TableDataInfo<FlowDefinitionVo> build = TableDataInfo.build();
-        build.setRows(BeanUtil.copyToList(page.getRecords(), FlowDefinitionVo.class));
-        build.setTotal(page.getTotal());
-        return build;
+        List<FlowDefinitionVo> list = BeanUtil.copyToList(page.getRecords(), FlowDefinitionVo.class);
+        return new TableDataInfo<>(list, page.getTotal());
     }
 
     /**
@@ -96,10 +94,8 @@ public class FlwDefinitionServiceImpl implements IFlwDefinitionService {
         LambdaQueryWrapper<FlowDefinition> wrapper = buildQueryWrapper(flowDefinition);
         wrapper.in(FlowDefinition::getIsPublish, Arrays.asList(PublishStatus.UNPUBLISHED.getKey(), PublishStatus.EXPIRED.getKey()));
         Page<FlowDefinition> page = flowDefinitionMapper.selectPage(pageQuery.build(), wrapper);
-        TableDataInfo<FlowDefinitionVo> build = TableDataInfo.build();
-        build.setRows(BeanUtil.copyToList(page.getRecords(), FlowDefinitionVo.class));
-        build.setTotal(page.getTotal());
-        return build;
+        List<FlowDefinitionVo> list = BeanUtil.copyToList(page.getRecords(), FlowDefinitionVo.class);
+        return new TableDataInfo<>(list, page.getTotal());
     }
 
     private LambdaQueryWrapper<FlowDefinition> buildQueryWrapper(FlowDefinition flowDefinition) {
@@ -125,14 +121,14 @@ public class FlwDefinitionServiceImpl implements IFlwDefinitionService {
         List<FlowNode> flowNodes = flowNodeMapper.selectList(new LambdaQueryWrapper<FlowNode>().eq(FlowNode::getDefinitionId, id));
         List<String> errorMsg = new ArrayList<>();
         if (CollUtil.isNotEmpty(flowNodes)) {
+            String applyNodeCode = flwCommonService.applyNodeCode(id);
             for (FlowNode flowNode : flowNodes) {
-                String applyNodeCode = flwCommonService.applyNodeCode(id);
                 if (StringUtils.isBlank(flowNode.getPermissionFlag()) && !applyNodeCode.equals(flowNode.getNodeCode()) && NodeType.BETWEEN.getKey().equals(flowNode.getNodeType())) {
                     errorMsg.add(flowNode.getNodeName());
                 }
             }
             if (CollUtil.isNotEmpty(errorMsg)) {
-                throw new ServiceException("节点【" + StringUtils.join(errorMsg, ",") + "】未配置办理人!");
+                throw new ServiceException("节点【{}】未配置办理人!", StringUtils.joinComma(errorMsg));
             }
         }
         return defService.publish(id);
@@ -192,7 +188,7 @@ public class FlwDefinitionServiceImpl implements IFlwDefinitionService {
             if (CollUtil.isNotEmpty(flowDefinitions)) {
                 String join = StreamUtils.join(flowDefinitions, FlowDefinition::getFlowCode);
                 log.info("流程定义【{}】已被使用不可被删除！", join);
-                throw new ServiceException("流程定义【" + join + "】已被使用不可被删除！");
+                throw new ServiceException("流程定义【{}】已被使用不可被删除！", join);
             }
         }
         try {
@@ -217,7 +213,8 @@ public class FlwDefinitionServiceImpl implements IFlwDefinitionService {
             return;
         }
         FlowCategory flowCategory = flwCategoryMapper.selectOne(new LambdaQueryWrapper<FlowCategory>()
-            .eq(FlowCategory::getTenantId, DEFAULT_TENANT_ID).eq(FlowCategory::getCategoryId, FlowConstant.FLOW_CATEGORY_ID));
+            .eq(FlowCategory::getTenantId, DEFAULT_TENANT_ID)
+            .eq(FlowCategory::getCategoryId, FlowConstant.FLOW_CATEGORY_ID));
         flowCategory.setCategoryId(null);
         flowCategory.setTenantId(tenantId);
         flowCategory.setCreateDept(null);
@@ -234,7 +231,7 @@ public class FlwDefinitionServiceImpl implements IFlwDefinitionService {
             flowDefinition.setId(null);
             flowDefinition.setTenantId(tenantId);
             flowDefinition.setIsPublish(0);
-            flowDefinition.setCategory(String.valueOf(flowCategory.getCategoryId()));
+            flowDefinition.setCategory(Convert.toStr(flowCategory.getCategoryId()));
             int insert = flowDefinitionMapper.insert(flowDefinition);
             if (insert <= 0) {
                 log.info("同步流程定义【{}】失败！", definition.getFlowCode());

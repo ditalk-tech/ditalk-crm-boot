@@ -15,7 +15,13 @@ import java.util.List;
  */
 public interface ISysDictTypeService {
 
-
+    /**
+     * 分页查询字典类型列表
+     *
+     * @param dictType  查询条件
+     * @param pageQuery 分页参数
+     * @return 字典类型分页列表
+     */
     TableDataInfo<SysDictTypeVo> selectPageDictTypeList(SysDictTypeBo dictType, PageQuery pageQuery);
 
     /**
@@ -62,7 +68,7 @@ public interface ISysDictTypeService {
      *
      * @param dictIds 需要删除的字典ID
      */
-    void deleteDictTypeByIds(Long[] dictIds);
+    void deleteDictTypeByIds(List<Long> dictIds);
 
     /**
      * 重置字典缓存数据

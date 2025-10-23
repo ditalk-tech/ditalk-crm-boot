@@ -4,20 +4,19 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.constant.CacheNames;
-import org.dromara.common.core.utils.MapstructUtils;
-import org.dromara.common.core.utils.ObjectUtils;
-import org.dromara.common.mybatis.core.page.PageQuery;
-import org.dromara.system.domain.SysDictData;
-import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.core.exception.ServiceException;
+import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
+import org.dromara.common.mybatis.core.page.PageQuery;
+import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.redis.utils.CacheUtils;
+import org.dromara.system.domain.SysDictData;
 import org.dromara.system.domain.bo.SysDictDataBo;
 import org.dromara.system.domain.vo.SysDictDataVo;
 import org.dromara.system.mapper.SysDictDataMapper;
 import org.dromara.system.service.ISysDictDataService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +33,13 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
 
     private final SysDictDataMapper baseMapper;
 
+    /**
+     * 分页查询字典数据列表
+     *
+     * @param dictData  查询条件
+     * @param pageQuery 分页参数
+     * @return 字典数据分页列表
+     */
     @Override
     public TableDataInfo<SysDictDataVo> selectPageDictDataList(SysDictDataBo dictData, PageQuery pageQuery) {
         LambdaQueryWrapper<SysDictData> lqw = buildQueryWrapper(dictData);
@@ -95,12 +101,10 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * @param dictCodes 需要删除的字典数据ID
      */
     @Override
-    public void deleteDictDataByIds(Long[] dictCodes) {
-        for (Long dictCode : dictCodes) {
-            SysDictData data = baseMapper.selectById(dictCode);
-            baseMapper.deleteById(dictCode);
-            CacheUtils.evict(CacheNames.SYS_DICT, data.getDictType());
-        }
+    public void deleteDictDataByIds(List<Long> dictCodes) {
+        List<SysDictData> list = baseMapper.selectByIds(dictCodes);
+        baseMapper.deleteByIds(dictCodes);
+        list.forEach(x -> CacheUtils.evict(CacheNames.SYS_DICT, x.getDictType()));
     }
 
     /**
@@ -145,13 +149,11 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      */
     @Override
     public boolean checkDictDataUnique(SysDictDataBo dict) {
-        Long dictCode = ObjectUtils.notNull(dict.getDictCode(), -1L);
-        SysDictData entity = baseMapper.selectOne(new LambdaQueryWrapper<SysDictData>()
-            .eq(SysDictData::getDictType, dict.getDictType()).eq(SysDictData::getDictValue, dict.getDictValue()));
-        if (ObjectUtil.isNotNull(entity) && !dictCode.equals(entity.getDictCode())) {
-            return false;
-        }
-        return true;
+        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysDictData>()
+            .eq(SysDictData::getDictType, dict.getDictType())
+            .eq(SysDictData::getDictValue, dict.getDictValue())
+            .ne(ObjectUtil.isNotNull(dict.getDictCode()), SysDictData::getDictCode, dict.getDictCode()));
+        return !exist;
     }
 
 }

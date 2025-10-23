@@ -36,10 +36,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 部门管理 服务实现
@@ -110,10 +107,7 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
         if (ObjectUtil.isNotNull(bo.getBelongDeptId())) {
             //部门树搜索
             lqw.and(x -> {
-                Long parentId = bo.getBelongDeptId();
-                List<SysDept> deptList = baseMapper.selectListByParentId(parentId);
-                List<Long> deptIds = StreamUtils.toList(deptList, SysDept::getDeptId);
-                deptIds.add(parentId);
+                List<Long> deptIds = baseMapper.selectDeptAndChildById(bo.getBelongDeptId());
                 x.in(SysDept::getDeptId, deptIds);
             });
         }
@@ -131,23 +125,17 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
         if (CollUtil.isEmpty(depts)) {
             return CollUtil.newArrayList();
         }
-        // 获取当前列表中每一个节点的parentId，然后在列表中查找是否有id与其parentId对应，若无对应，则表明此时节点列表中，该节点在当前列表中属于顶级节点
-        List<Tree<Long>> treeList = CollUtil.newArrayList();
-        for (SysDeptVo d : depts) {
-            Long parentId = d.getParentId();
-            SysDeptVo sysDeptVo = StreamUtils.findFirst(depts, it -> it.getDeptId().longValue() == parentId);
-            if (ObjectUtil.isNull(sysDeptVo)) {
-                List<Tree<Long>> trees = TreeBuildUtils.build(depts, parentId, (dept, tree) ->
-                    tree.setId(dept.getDeptId())
-                        .setParentId(dept.getParentId())
-                        .setName(dept.getDeptName())
-                        .setWeight(dept.getOrderNum())
-                        .putExtra("disabled", SystemConstants.DISABLE.equals(dept.getStatus())));
-                Tree<Long> tree = StreamUtils.findFirst(trees, it -> it.getId().longValue() == d.getDeptId());
-                treeList.add(tree);
-            }
-        }
-        return treeList;
+        return TreeBuildUtils.buildMultiRoot(
+            depts,
+            SysDeptVo::getDeptId,
+            SysDeptVo::getParentId,
+            (node, treeNode) -> treeNode
+                .setId(node.getDeptId())
+                .setParentId(node.getParentId())
+                .setName(node.getDeptName())
+                .setWeight(node.getOrderNum())
+                .putExtra("disabled", SystemConstants.DISABLE.equals(node.getStatus()))
+        );
     }
 
     /**
@@ -204,7 +192,7 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
                 list.add(vo.getDeptName());
             }
         }
-        return String.join(StringUtils.SEPARATOR, list);
+        return StringUtils.joinComma(list);
     }
 
     /**
@@ -413,6 +401,26 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
     @Override
     public int deleteDeptById(Long deptId) {
         return baseMapper.deleteById(deptId);
+    }
+
+
+    /**
+     * 根据部门 ID 列表查询部门名称映射关系
+     *
+     * @param deptIds 部门 ID 列表
+     * @return Map，其中 key 为部门 ID，value 为对应的部门名称
+     */
+    @Override
+    public Map<Long, String> selectDeptNamesByIds(List<Long> deptIds) {
+        if (CollUtil.isEmpty(deptIds)) {
+            return Collections.emptyMap();
+        }
+        List<SysDept> list = baseMapper.selectList(
+            new LambdaQueryWrapper<SysDept>()
+                .select(SysDept::getDeptId, SysDept::getDeptName)
+                .in(SysDept::getDeptId, deptIds)
+        );
+        return StreamUtils.toMap(list, SysDept::getDeptId, SysDept::getDeptName);
     }
 
 }

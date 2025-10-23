@@ -54,6 +54,11 @@ public class CompleteTaskBo implements Serializable {
     private String notice;
 
     /**
+     * 办理人(可不填 用于覆盖当前节点办理人)
+     */
+    private String handler;
+
+    /**
      * 流程变量
      */
     private Map<String, Object> variables;
@@ -70,7 +75,8 @@ public class CompleteTaskBo implements Serializable {
 
     public Map<String, Object> getVariables() {
         if (variables == null) {
-            return new HashMap<>(16);
+            variables = new HashMap<>(16);
+            return variables;
         }
         variables.entrySet().removeIf(entry -> Objects.isNull(entry.getValue()));
         return variables;
