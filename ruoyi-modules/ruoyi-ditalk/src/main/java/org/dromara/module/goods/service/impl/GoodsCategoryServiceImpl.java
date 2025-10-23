@@ -193,7 +193,7 @@ public class GoodsCategoryServiceImpl implements IGoodsCategoryService {
         List<Tree<Long>> treeList = CollUtil.newArrayList();
         for (GoodsCategoryVo vo : categoryVos) {
             Long parentId = vo.getParentId();
-            GoodsCategoryVo goodsCategoryVo = StreamUtils.findFirst(categoryVos, it -> it.getId().longValue() == parentId);
+            GoodsCategoryVo goodsCategoryVo = StreamUtils.findFirst(categoryVos, it -> it.getId() != null && it.getId().longValue() == parentId).orElse(null);
             if (ObjectUtil.isNull(goodsCategoryVo)) {
                 List<Tree<Long>> trees = TreeBuildUtils.build(categoryVos, parentId, (categoryVo, tree) ->
                     tree.setId(categoryVo.getId())
@@ -201,8 +201,10 @@ public class GoodsCategoryServiceImpl implements IGoodsCategoryService {
                         .setName(categoryVo.getName())
                         .setWeight(categoryVo.getSortOrder())
                         .putExtra("disabled", SystemConstants.DISABLE.equals(categoryVo.getState())));
-                Tree<Long> tree = StreamUtils.findFirst(trees, it -> it.getId().longValue() == vo.getId());
-                treeList.add(tree);
+                Tree<Long> tree = StreamUtils.findFirst(trees, it -> it.getId() != null && it.getId().longValue() == vo.getId()).orElse(null);
+                if (tree != null) {
+                    treeList.add(tree);
+                }
             }
         }
         return treeList;
